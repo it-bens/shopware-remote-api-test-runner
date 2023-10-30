@@ -1,0 +1,22 @@
+###> PHPStorm ###
+/.idea/
+###< PHPStorm ###
+
+###> macOS ###
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+###< macOS ###
+
+###> Composer ###
+/composer.lock
+/vendor/
+###< Composer ###
+
+###> Symfony ###
+/.env.test
+/public/bundles/
+/src/.preload.php
+/var/
+###< Symfony ###
