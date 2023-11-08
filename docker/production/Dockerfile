@@ -39,8 +39,10 @@ RUN jq --arg v "$SHOPWARE_VERSION" '.require."shopware/core" = $v' composer.json
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
+ENV COMPOSER_MEMORY_LIMIT=-1
+
 # prepare code
-RUN composer update --no-cache --prefer-dist --no-scripts --no-progress --no-interaction --ignore-platform-reqs && \
+RUN composer update --no-cache --prefer-dist --no-scripts --no-interaction --ignore-platform-reqs --no-dev && \
     rm -rf \
     .env.* \
     .gitignore \
@@ -55,8 +57,8 @@ ARG CURRENCY="EUR"
 
 LABEL org.opencontainers.image.authors="Martin Bens <martin.bens@it-bens.de>" \
       org.opencontainers.image.title="Shopware Remote Admin API Test Wrapper" \
+      org.opencontainers.image.source="https://github.com/it-bens/shopware-remote-admin-api-test-runnner" \
       org.opencontainers.image.description="A Docker image for running Shopware with a remote admin API for testing purposes." \
-      org.opencontainers.image.version="1.0.0" \
       org.opencontainers.image.licenses="MIT" \
       shopware.version=$SHOPWARE_VERSION \
       shopware.locale=$LOCALE \
@@ -106,11 +108,12 @@ EXPOSE 80
 # copy code
 COPY --from=project_builder --link --chown=www-data:www-data /var/www/html /opt/shopware-remote-admin-api-test-runnner
 WORKDIR /opt/shopware-remote-admin-api-test-runnner
+# set jwt key permissions
+RUN chmod -R 660 /opt/shopware-remote-admin-api-test-runnner/config/jwt/private.pem /opt/shopware-remote-admin-api-test-runnner/config/jwt/public.pem
 
 RUN service mariadb start && \
     sudo -u www-data mkdir -p /opt/shopware-remote-admin-api-test-runnner/var/dump && \
-    sudo -u www-data php /opt/shopware-remote-admin-api-test-runnner/setup.php "$LOCALE" "$CURRENCY" && \
-    sudo -u www-data php
+    sudo -u www-data php -d memory_limit=-1 /opt/shopware-remote-admin-api-test-runnner/setup.php "$LOCALE" "$CURRENCY"
 
 # Copy health check script
 COPY ./docker/production/healthcheck.sh /usr/local/bin/healthcheck.sh

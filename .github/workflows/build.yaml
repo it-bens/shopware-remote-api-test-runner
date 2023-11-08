@@ -1,0 +1,51 @@
+name: Build and Push Docker Images
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'main'
+    paths:
+      - 'docker/production/Dockerfile'
+      - 'composer.json'
+      - 'src/**'
+      - '*.php'
+  pull_request:
+    branches:
+      - 'main'
+    paths:
+      - 'docker/production/Dockerfile'
+      - 'composer.json'
+      - 'src/**'
+      - '*.php'
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        shopware_version: ['6.5.3.3', '6.5.4.1', '6.5.5.2', '6.5.6.1']
+        locale: ['de-DE', 'en-GB']
+        currency: ['EUR']
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./docker/production/Dockerfile
+          push: true
+          tags: ghcr.io/it-bens/${{ github.repository }}:${{ matrix.shopware_version }}_${{ matrix.locale }}_${{ matrix.currency }}
+          build-args: |
+            SHOPWARE_VERSION=${{ matrix.shopware_version }}
+            LOCALE=${{ matrix.locale }}
+            CURRENCY=${{ matrix.currency }}
