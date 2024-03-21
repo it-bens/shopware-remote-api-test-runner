@@ -89,7 +89,7 @@ ENV APP_ENV="test"
 ENV APP_DEBUG="1"
 ENV APP_SECRET="!not-a-secret!"
 ENV KERNEL_CLASS="Shopware\Core\Kernel"
-ENV DATABASE_URL="mysql://root:root@127.0.0.1:3306/shopware_test?serverVersion=mariadb-10.11.2"
+ENV DATABASE_URL="mysql://root:root@127.0.0.1:3306/shopware_test?serverVersion=mariadb-10.11.6"
 
 LABEL org.opencontainers.image.authors="Martin Bens <martin.bens@it-bens.de>" \
       org.opencontainers.image.title="Shopware Remote Admin API Test Wrapper" \
@@ -133,7 +133,7 @@ RUN /bin/sh -c echo debconf mysql-server/root_password password root | debconf-s
     echo debconf mysql-server/root_password_again password root | debconf-set-selections && \
     export DEBIAN_FRONTEND=noninteractive && \
     apt-get update && \
-    apt-get install -y -q mariadb-server && \
+    apt-get install -y -q mariadb-server=1:10.11.6-0+deb12u1 mariadb-client=1:10.11.6-0+deb12u1 && \
     usermod -d /var/lib/mysql/ mysql && \
     rm -rf /var/lib/apt/lists/* /var/cache/apt/* && \
     chmod 0444 /etc/mysql/my.cnf && \
