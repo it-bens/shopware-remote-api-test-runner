@@ -14,7 +14,7 @@ require __DIR__ . '/../vendor/autoload.php';
 $dotenv = new Dotenv();
 $dotenv->loadEnv(__DIR__ . '/../.env');
 
-require __DIR__ . '/../vendor/shopware/core/TestBootstrap.php';
+require __DIR__ . '/../vendor/shopware/platform/src/Core/TestBootstrap.php';
 
 $apiTestRequestFactory = new RequestFactory();
 
