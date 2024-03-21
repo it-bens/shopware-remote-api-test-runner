@@ -1,0 +1,6 @@
+{
+  "name": "private/private",
+  "homepage": "http://localhost:8090",
+  "repositories": [],
+  "require-all": true
+}

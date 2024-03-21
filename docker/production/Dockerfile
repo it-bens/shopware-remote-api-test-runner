@@ -49,6 +49,36 @@ RUN composer update --no-cache --prefer-dist --no-scripts --no-interaction --ign
     docker-compose.yml \
     docker
 
+FROM php_cli_upstream AS project_builder_satis
+
+# install dependencies
+RUN set -ex; \
+    apt-get update && \
+    apt-get -y --no-install-recommends install \
+    $PHPIZE_DEPS \
+    unzip && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# php extensions installer: https://github.com/mlocati/docker-php-extension-installer
+COPY --from=php_extension_installer_upstream --link /usr/bin/install-php-extensions /usr/local/bin/
+RUN install-php-extensions \
+    zip
+
+# Set environment variables for Composer
+ENV COMPOSER_ALLOW_SUPERUSER=1 \
+    PATH="${PATH}:/root/.composer/vendor/bin"
+
+# Install Composer
+COPY --from=composer_upstream --link /composer /usr/bin/composer
+
+RUN mkdir -p /opt && \
+    cd /opt && \
+    composer create-project composer/satis --stability=dev --keep-vcs
+ADD docker/production/satis.json /opt/satis/satis.json
+RUN cd /opt/satis && \
+    php bin/satis build ./satis.json ./public
+
 FROM php_webserver_upstream AS project_runner
 
 ARG SHOPWARE_VERSION="^6.5"
@@ -71,7 +101,8 @@ RUN set -ex; \
     gnupg \
     lsb-release \
     sudo \
-    wget && \
+    wget \
+    zip && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
@@ -98,14 +129,17 @@ RUN /bin/sh -c echo debconf mysql-server/root_password password root | debconf-s
     mysql --user=root --password=root -e "CREATE USER 'root'@'%' IDENTIFIED BY 'root';GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' WITH GRANT OPTION;FLUSH PRIVILEGES;use mysql;select user from user;" && \
     service mariadb restart
 
-RUN sed -ri -e 's!/var/www/html!/opt/shopware-remote-admin-api-test-runnner/public!g' /etc/apache2/sites-available/*.conf && \
-    sed -ri -e 's!/var/www/!/opt/shopware-remote-admin-api-test-runnner/public!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf && \
+RUN rm /etc/apache2/sites-enabled/* && \
+    rm /etc/apache2/sites-available/*
+ADD docker/production/apache.conf /etc/apache2/sites-available/default.conf
+RUN a2ensite default.conf && \
     a2enmod rewrite
 
 # Expose port for Apache
 EXPOSE 80
+# Port 8090 for Satis must not be exposed.
 
-# copy code
+# copy shopware remote admin test runner code
 COPY --from=project_builder --link --chown=www-data:www-data /var/www/html /opt/shopware-remote-admin-api-test-runnner
 WORKDIR /opt/shopware-remote-admin-api-test-runnner
 # set jwt key permissions
@@ -114,6 +148,9 @@ RUN chmod -R 660 /opt/shopware-remote-admin-api-test-runnner/config/jwt/private.
 RUN service mariadb start && \
     sudo -u www-data mkdir -p /opt/shopware-remote-admin-api-test-runnner/var/dump && \
     sudo -u www-data php -d memory_limit=-1 /opt/shopware-remote-admin-api-test-runnner/setup.php "$LOCALE" "$CURRENCY"
+
+# copy satis code
+COPY --from=project_builder_satis --link --chown=www-data:www-data /opt/satis /opt/satis
 
 # Copy health check script
 COPY ./docker/production/healthcheck.sh /usr/local/bin/healthcheck.sh
