@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        shopware_version: ['6.5.3.3', '6.5.4.1', '6.5.5.2', '6.5.6.1', '6.5.7.3', '6.5.8.7']
+        shopware_version: ['6.5.4.1', '6.5.5.2', '6.5.6.1', '6.5.7.3', '6.5.8.7']
         locale: ['de-DE', 'en-GB']
         currency: ['EUR']
     steps:
