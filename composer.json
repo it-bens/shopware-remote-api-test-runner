@@ -1,5 +1,5 @@
 {
-    "name": "it-bens/shopware-remote-admin-api-test-runnner",
+    "name": "it-bens/shopware-remote-admin-api-test-runner",
     "description": "A wrapper around the Shopware core to run tests against the admin API via remote access.",
     "type": "package",
     "license": "MIT",
@@ -13,6 +13,7 @@
     "prefer-stable": true,
     "require": {
         "shopware/platform": "^6.5",
+        "swag/language-pack": "^3.1",
         "symfony/browser-kit": "^6.3",
         "symfony/dotenv": "^6.3"
     },
