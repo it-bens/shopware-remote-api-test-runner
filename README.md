@@ -78,6 +78,44 @@ RUN service apache2 start && \
 
 Don't be confused by the Dockerfile, I will explain the backup and plugin stuff later.
 
+### Inside a pipeline
+
+The images of this project can be used in CI/CD pipelines. Because pipeline configuration can be hard, I will provide an example for GitLab CI:
+
+```yaml
+phpunit e2e tests image build:
+  stage: test preparation
+  services:
+    - docker:20.10.21-dind
+  before_script:
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+  script:
+    - DOCKER_BUILDKIT=1 docker build --cache-from ${E2E_TEST_IMAGE} --tag ${E2E_TEST_IMAGE} --file docker/test-e2e/Dockerfile .
+    - docker push ${E2E_TEST_IMAGE}
+
+phpunit e2e tests:
+  stage: test execution
+  image: registry.gitlab.com/umbrella/shopware/waneaaerps-bridge:phpunit-runner
+  services:
+    - name: ${E2E_TEST_IMAGE}
+      alias: e2e-test-shopware
+  before_script:
+    - composer install
+    - APP_ENV=test APP_DEBUG=0 composer run-script auto-scripts
+  script:
+    - SYMFONY_DEPRECATIONS_HELPER=disabled vendor/bin/phpunit --do-not-cache-result --log-junit phpunit-report.xml --coverage-cobertura phpunit-coverage.xml --coverage-text --colors=never
+  artifacts:
+    when: always
+    reports:
+      junit: phpunit-report.xml
+      coverage_report:
+        coverage_format: cobertura
+        path: phpunit-coverage.xml
+  coverage: '/^\s*Lines:\s*\d+.\d+\%/'
+```
+
+This pipeline builds a Shopware image extending an image of this project and pushes it to a registry. This image is then used as a service to for the actual PHPUnit test runner, which runs the E2E tests.
+
 ## The features
 
 ### The database reset
@@ -130,6 +168,7 @@ After that, it's the usual install/activation process of Shopware. But there is 
 
 <details>
   <summary>Like the title says, this is actually a missing feature. I experimented with automated authentication to make the Admin API calls a little more convenient. The debugging of this feature was very interesting and insightful and ended in discarding this feature. If you're not interested in the details, just skip this point.</summary>
+
 
 Shopware uses the [PHP league OAuth2 server](https://github.com/thephpleague/oauth2-server) to authenticate the Admin API calls. A successful token request returns a bearer token that can be used to authenticate API calls. So far, so usual.
 
