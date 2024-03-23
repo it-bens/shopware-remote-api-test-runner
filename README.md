@@ -4,11 +4,11 @@ Shopware provides an Admin API which grants more or less direct access to the DA
 
 ## Do I really require this project?
 
-The documentation of the Admin API is generate automatically from the DAL entity definitions of Shopware. However, at some points, the documentation doesn't provide enough details for the development of an application that uses the Admin API. This test runner is intended to provide a more detailed documentation of the Admin API.
+The [documentation of the Admin API](https://shopware.stoplight.io/docs/admin-api/branches/v6.5/twpxvnspkg3yu-quick-start-guide) is generate automatically from the DAL entity definitions of Shopware. However, at some points, the documentation doesn't provide enough details for the development of an application that uses the Admin API. This test runner is intended to provide a more detailed documentation of the Admin API.
 
 As all of you know, tests can be used to do three things: verify that the code works as expected, document the code, and provide the ability to debug the running code. While Unit tests should be the basis of your test pyramid, End-to-End tests can be used to verify that the API interaction works as expected.
 
-Dockware provides excellent images for plugin development and to play with Shopware. But the images are not suitable for automated tests that require a "clean" system for every run. That's the point where this project steps in. It provides docker images that contain a complete Shopware instance which can be rolled back to the state after it started.
+[Dockware](https://dockware.io) provides excellent images for plugin development and to play with Shopware. But the images are not suitable for automated tests that require a "clean" system for every run. That's the point where this project steps in. It provides docker images that contain a complete Shopware instance which can be rolled back to the state after it started.
 
 ## Which image should I use?
 
@@ -16,7 +16,7 @@ If you have a look into the GitHub container registry of this project, you will 
 
 ### The Shopware default language problem
 
-During the installation of Shopware, a default language has to be chosen or is set for you. The UUID of the default language is always the same: `2fbb5fe2e29a4d70aa5854ce7ce3e20b`. Shopware uses this UUID for the choice of the default language. All translation tables contain a foreign key referencing the language table. If the default language is changed in a running system, all existing translations will be a mess, because they point to the wrong language. This sounds more like an inconvenience than a problem, but it can render Shopware useless and it cannot always be undone. That's why Shopware has no command to do so.
+During the installation of Shopware, a default language has to be chosen or is set for you. The UUID of the default language is always the same: `2fbb5fe2e29a4d70aa5854ce7ce3e20b`. All translation tables contain a foreign key referencing the language table. If the default language is changed in a running system, all existing translations will be a mess, because they point to the wrong language. This sounds more like an inconvenience than a problem, but it can render Shopware useless and it cannot always be undone. That's why Shopware has no command to do so.
 
 However, changing the default language in a fresh installation is relatively safe. That is done during the building of the images provided by this project.
 
@@ -24,7 +24,7 @@ However, changing the default language in a fresh installation is relatively saf
 
 ### Vanilla Images
 
-While I don't recommend to run the Unit tests inside the Shopware container, it's technically possible. The `/var/www/html` directory is not used and if the PHP version and installed extensions matches the requirements of the your project ... it is still not recommended. ;)
+While I don't recommend to run the Unit tests inside the Shopware container, it's technically possible. The `/var/www/html` directory is not used and if the PHP version and installed extensions matches the requirements of your project ... it is still not recommended. 😉
 
 It's better to use the Shopware container as a service for your test container. Shopware is running on port `80`. A `docker-compose.yml` file could look like this:
 
@@ -135,7 +135,7 @@ Shopware uses the [PHP league OAuth2 server](https://github.com/thephpleague/oau
 
 Shopware provides a lot of internal test classes and test bootstrapping that this projects uses. A look into the `Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour` trait shows methods to create/return a pre-authenticated browser or at least methods to do the authentication very easy. Internally this methods execute the usual authentication process.
 
-At some point in the authentication process, the `Shopware\Core\Framework\Api\EventListener\JsonRequestTransformerListener` is called. Doesn't sound exciting or deal-breaking? Well, the JSON request transforming isn't. But the way this method get the raw data from the request can be problematic:
+At some point in the authentication process, the `Shopware\Core\Framework\Api\EventListener\JsonRequestTransformerListener` is called. Doesn't sound exciting or deal-breaking? Well, the JSON request transforming isn't. But the way this method gets the raw data from the request can be problematic:
 
 ```php
 /** @var Symfony\Component\HttpKernel\Event\RequestEvent $event */
@@ -152,9 +152,9 @@ if (null === $this->content || false === $this->content) {
 return $this->content;
 ```
 
-The code reads the raw request content via the PHP input stream ... which is read-only. The data of the authentication request is overwritten with the content of the actual request sent to the Shopware instance before the authentication procedure. **The result: if the request contains a body, the authentication fails.**
+The code reads the raw request content via the PHP input stream. The data of the authentication request is overwritten with the content of the actual request sent to the Shopware instance before the authentication procedure. **The result: if the request isn't a authentication request anyways, the authentication fails.**
 
-Because the input stream is read-only, I couldn't find a way to hook into this process and prevent the data override without a massive intervention into the Shopware core. That's why I discarded the automated authentication feature.
+Because the PHP input stream is read-only, I couldn't find a way to hook into this process and prevent the data override without a massive intervention into the Shopware core. That's why I discarded the automated authentication feature.
 </details>
 
 ## What's next?
