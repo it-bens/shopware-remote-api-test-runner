@@ -174,6 +174,10 @@ RUN cp /opt/shopware-remote-admin-api-test-runner/vendor/shopware/platform/bin/s
 # copy satis code
 COPY --from=project_builder_satis --link --chown=www-data:www-data /opt/satis /opt/satis
 
+# create static files directory
+RUN mkdir -p /opt/static && \
+    chown www-data:www-data /opt/static
+
 # Copy health check script
 COPY ./docker/production/healthcheck.sh /usr/local/bin/healthcheck.sh
 RUN chmod +x /usr/local/bin/healthcheck.sh
