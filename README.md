@@ -164,6 +164,18 @@ composer config secure-http false
 
 After that, it's the usual install/activation process of Shopware. But there is one last point: if the plugin is modifying the database, a new database backup has to be created and the old ones have to be deleted.
 
+### Static file serving
+
+Shopware allows the upload of images and other static files via Admin/Action API. If the image upload should be tested with this image, access to the image via URL is necessary. Because a test-image shouldn't require access to the internet, the images of this project contain the ability to serve static files via port `8100`. The files have to be placed in the `/opt/static` directory. The usage in a derived image could look like this:
+
+```Dockerfile
+FROM ghcr.io/it-bens/it-bens/shopware-remote-admin-api-test-runner:6.5.6.1_de-DE_EUR
+
+ADD /path/to/local/image.jpg /opt/static/image.jpg
+```
+
+The image would be available via `http://localhost:8100/image.jpg`.
+
 ### The missing feature: automated authentication
 
 <details>
