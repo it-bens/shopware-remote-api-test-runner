@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use ITB\ShopwareRemoteAdminApiTestRunner\Setup\DatabaseBackupExecutor;
+use ITB\ShopwareRemoteApiTestRunner\Setup\DatabaseBackupExecutor;
 use Symfony\Component\Dotenv\Dotenv;
 
 require __DIR__ . '/vendor/autoload.php';

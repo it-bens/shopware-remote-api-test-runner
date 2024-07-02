@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace ITB\ShopwareRemoteAdminApiTestRunner\ApiTest;
+namespace ITB\ShopwareRemoteApiTestRunner\ApiTest;
 
 use Symfony\Component\HttpFoundation\Request as HttpRequest;
 

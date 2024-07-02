@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use ITB\ShopwareRemoteAdminApiTestRunner\ApiTest\AdminApiRunner;
-use ITB\ShopwareRemoteAdminApiTestRunner\Setup\DatabaseRestoreExecutor;
+use ITB\ShopwareRemoteApiTestRunner\ApiTest\AdminApiRunner;
+use ITB\ShopwareRemoteApiTestRunner\Setup\DatabaseRestoreExecutor;
 use Symfony\Component\Dotenv\Dotenv;
 
 require __DIR__ . '/vendor/autoload.php';

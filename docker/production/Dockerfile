@@ -92,9 +92,9 @@ ENV KERNEL_CLASS="Shopware\Core\Kernel"
 ENV DATABASE_URL="mysql://root:root@127.0.0.1:3306/shopware_test?serverVersion=mariadb-10.11.6"
 
 LABEL org.opencontainers.image.authors="Martin Bens <martin.bens@it-bens.de>" \
-      org.opencontainers.image.title="Shopware Remote Admin API Test Wrapper" \
-      org.opencontainers.image.source="https://github.com/it-bens/shopware-remote-admin-api-test-runner" \
-      org.opencontainers.image.description="A Docker image for running Shopware with a remote admin API for testing purposes." \
+      org.opencontainers.image.title="Shopware Remote API Test Wrapper" \
+      org.opencontainers.image.source="https://github.com/it-bens/shopware-remote-api-test-runner" \
+      org.opencontainers.image.description="A Docker image for running Shopware with a remote API for testing purposes." \
       org.opencontainers.image.licenses="MIT" \
       shopware.version=$SHOPWARE_VERSION \
       shopware.locale=$LOCALE \
@@ -152,24 +152,24 @@ RUN a2ensite default.conf && \
 EXPOSE 80
 # Port 8090 for Satis must not be exposed.
 
-# copy shopware remote admin test runner code
-COPY --from=project_builder --link --chown=www-data:www-data /var/www/html /opt/shopware-remote-admin-api-test-runner
-RUN touch /opt/shopware-remote-admin-api-test-runner/.env && \
-    echo "APP_ENV=\"$APP_ENV\"" >> /opt/shopware-remote-admin-api-test-runner/.env && \
-    echo "APP_DEBUG=\"$APP_DEBUG\"" >> /opt/shopware-remote-admin-api-test-runner/.env && \
-    echo "APP_SECRET=\"$APP_SECRET\"" >> /opt/shopware-remote-admin-api-test-runner/.env && \
-    echo "DATABASE_URL=\"$DATABASE_URL\"" >> /opt/shopware-remote-admin-api-test-runner/.env && \
-    echo "KERNEL_CLASS=\"$KERNEL_CLASS\"" >> /opt/shopware-remote-admin-api-test-runner/.env && \
-    chown www-data:www-data /opt/shopware-remote-admin-api-test-runner/.env
-WORKDIR /opt/shopware-remote-admin-api-test-runner
+# copy shopware remote api test runner code
+COPY --from=project_builder --link --chown=www-data:www-data /var/www/html /opt/shopware-remote-api-test-runner
+RUN touch /opt/shopware-remote-api-test-runner/.env && \
+    echo "APP_ENV=\"$APP_ENV\"" >> /opt/shopware-remote-api-test-runner/.env && \
+    echo "APP_DEBUG=\"$APP_DEBUG\"" >> /opt/shopware-remote-api-test-runner/.env && \
+    echo "APP_SECRET=\"$APP_SECRET\"" >> /opt/shopware-remote-api-test-runner/.env && \
+    echo "DATABASE_URL=\"$DATABASE_URL\"" >> /opt/shopware-remote-api-test-runner/.env && \
+    echo "KERNEL_CLASS=\"$KERNEL_CLASS\"" >> /opt/shopware-remote-api-test-runner/.env && \
+    chown www-data:www-data /opt/shopware-remote-api-test-runner/.env
+WORKDIR /opt/shopware-remote-api-test-runner
 # set jwt key permissions
-RUN chmod -R 660 /opt/shopware-remote-admin-api-test-runner/config/jwt/private.pem /opt/shopware-remote-admin-api-test-runner/config/jwt/public.pem
+RUN chmod -R 660 /opt/shopware-remote-api-test-runner/config/jwt/private.pem /opt/shopware-remote-api-test-runner/config/jwt/public.pem
 
 RUN service mariadb start && \
-    sudo -u www-data mkdir -p /opt/shopware-remote-admin-api-test-runner/var/dump && \
-    sudo -u www-data php -d memory_limit=-1 /opt/shopware-remote-admin-api-test-runner/setup.php "$LOCALE" "$CURRENCY"
+    sudo -u www-data mkdir -p /opt/shopware-remote-api-test-runner/var/dump && \
+    sudo -u www-data php -d memory_limit=-1 /opt/shopware-remote-api-test-runner/setup.php "$LOCALE" "$CURRENCY"
 
-RUN cp /opt/shopware-remote-admin-api-test-runner/vendor/shopware/platform/bin/shopware /opt/shopware-remote-admin-api-test-runner/bin/console
+RUN cp /opt/shopware-remote-api-test-runner/vendor/shopware/platform/bin/shopware /opt/shopware-remote-api-test-runner/bin/console
 
 # copy satis code
 COPY --from=project_builder_satis --link --chown=www-data:www-data /opt/satis /opt/satis

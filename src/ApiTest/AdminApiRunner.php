@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace ITB\ShopwareRemoteAdminApiTestRunner\ApiTest;
+namespace ITB\ShopwareRemoteApiTestRunner\ApiTest;
 
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
