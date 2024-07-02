@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use ITB\ShopwareRemoteAdminApiTestRunner\ApiTest\Runner;
+use ITB\ShopwareRemoteAdminApiTestRunner\ApiTest\AdminApiRunner;
 use ITB\ShopwareRemoteAdminApiTestRunner\Setup\DatabaseRestoreExecutor;
 use Symfony\Component\Dotenv\Dotenv;
 
@@ -15,7 +15,7 @@ require __DIR__ . '/vendor/shopware/platform/src/Core/TestBootstrap.php';
 
 echo 'Resetting database...' . PHP_EOL;
 
-$remotelyCalledApiTest = new Runner();
+$remotelyCalledApiTest = new AdminApiRunner();
 $remotelyCalledApiTest->beforeCall(true);
 $remotelyCalledApiTest->afterCall(true);
 

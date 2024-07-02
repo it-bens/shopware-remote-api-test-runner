@@ -3,7 +3,8 @@
 declare(strict_types=1);
 
 use ITB\ShopwareRemoteAdminApiTestRunner\ApiTest\RequestFactory;
-use ITB\ShopwareRemoteAdminApiTestRunner\ApiTest\Runner;
+use ITB\ShopwareRemoteAdminApiTestRunner\ApiTest\AdminApiRunner;
+use ITB\ShopwareRemoteAdminApiTestRunner\ApiTest\StoreApiRunner;
 use ITB\ShopwareRemoteAdminApiTestRunner\Setup\DatabaseRestoreExecutor;
 use Symfony\Component\Dotenv\Dotenv;
 use Symfony\Component\HttpFoundation\Response;
@@ -46,7 +47,20 @@ if ($apiTestRequest->httpRequest->getPathInfo() === '/reset') {
     }
 }
 
-$remotelyCalledApiTest = new Runner();
+$remotelyCalledApiTest = null;
+if (str_starts_with($apiTestRequest->httpRequest->getPathInfo(), '/api/')) {
+    $remotelyCalledApiTest = new AdminApiRunner();
+}
+if (str_starts_with($apiTestRequest->httpRequest->getPathInfo(), '/store-api/')) {
+    $remotelyCalledApiTest = new StoreApiRunner();
+}
+if ($remotelyCalledApiTest === null) {
+    $response = new Response();
+    $response->setStatusCode(HttpResponse::HTTP_NOT_FOUND);
+    $response->setContent(sprintf('The request path "%s" neither matches the Admin API nor the Store API. Other paths are not supported.', $apiTestRequest->httpRequest->getPathInfo()));
+    $response->send();
+    exit(1);
+}
 
 try {
     $remotelyCalledApiTest->beforeCall($apiTestRequest->isRequestTransactional());
