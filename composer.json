@@ -1,7 +1,7 @@
 {
-    "name": "it-bens/shopware-remote-admin-api-test-runner",
-    "description": "A wrapper around the Shopware core to run tests against the admin API via remote access.",
-    "type": "package",
+    "name": "it-bens/shopware-remote-api-test-runner",
+    "description": "A wrapper around the Shopware core to run tests against the Store and Admin API via remote access.",
+    "type": "project",
     "license": "MIT",
     "authors": [
         {
@@ -32,7 +32,7 @@
     },
     "autoload": {
         "psr-4": {
-            "ITB\\ShopwareRemoteAdminApiTestRunner\\": "src/"
+            "ITB\\ShopwareRemoteApiTestRunner\\": "src/"
         }
     },
     "replace": {

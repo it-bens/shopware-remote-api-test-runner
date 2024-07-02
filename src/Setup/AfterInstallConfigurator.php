@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace ITB\ShopwareRemoteAdminApiTestRunner\Setup;
+namespace ITB\ShopwareRemoteApiTestRunner\Setup;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;

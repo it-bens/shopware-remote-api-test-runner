@@ -2,20 +2,27 @@
 
 declare(strict_types=1);
 
-namespace ITB\ShopwareRemoteAdminApiTestRunner\ApiTest;
+namespace ITB\ShopwareRemoteApiTestRunner\ApiTest;
 
-use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\Framework\Test\TestCaseHelper\TestBrowser;
+use Shopware\Core\Kernel;
 use Symfony\Component\HttpFoundation\Response;
 
-class Runner
+class StoreApiRunner
 {
-    use AdminApiTestBehaviour;
     use IntegrationTestBehaviour;
+
+    private ?Kernel $kernel = null;
+
+    private ?TestBrowser $browser = null;
 
     public function afterCall(bool $isRequestTransactional): void
     {
-        $this->resetAdminApiTestCaseTrait();
+        $this->kernel = null;
+        $this->browser = null;
+
         $this->clearCacheData();
         if ($isRequestTransactional) {
             $this->stopTransactionAfter();
@@ -40,18 +47,23 @@ class Runner
 
     public function call(Request $apiTestRequest): Response
     {
-        $this->getBrowser(authorized: false)
-            ->request(
-                $apiTestRequest->httpRequest->getMethod(),
-                $apiTestRequest->httpRequest->getUri(),
-                $apiTestRequest->httpRequest->request->all(),
-                $apiTestRequest->httpRequest->files->all(),
-                $apiTestRequest->httpRequest->server->all(),
-                $apiTestRequest->httpRequest->getContent(),
-            );
+        if ($this->kernel === null) {
+            $this->kernel = $this->getKernel();
+        }
+        if ($this->browser === null) {
+            $this->browser = KernelLifecycleManager::createBrowser($this->kernel, false);
+        }
 
-        return $this->getBrowser(authorized: false)
-            ->getResponse();
+        $this->browser->request(
+            $apiTestRequest->httpRequest->getMethod(),
+            $apiTestRequest->httpRequest->getUri(),
+            $apiTestRequest->httpRequest->request->all(),
+            $apiTestRequest->httpRequest->files->all(),
+            $apiTestRequest->httpRequest->server->all(),
+            $apiTestRequest->httpRequest->getContent(),
+        );
+
+        return $this->browser->getResponse();
     }
 
     /**

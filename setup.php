@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use ITB\ShopwareRemoteAdminApiTestRunner\ApiTest\Runner;
-use ITB\ShopwareRemoteAdminApiTestRunner\Setup\AfterInstallConfigurator;
-use ITB\ShopwareRemoteAdminApiTestRunner\Setup\DatabaseBackupExecutor;
+use ITB\ShopwareRemoteApiTestRunner\ApiTest\AdminApiRunner;
+use ITB\ShopwareRemoteApiTestRunner\Setup\AfterInstallConfigurator;
+use ITB\ShopwareRemoteApiTestRunner\Setup\DatabaseBackupExecutor;
 use Symfony\Component\Dotenv\Dotenv;
 
 // Get command-line arguments
@@ -18,7 +18,7 @@ $dotenv->loadEnv(__DIR__ . '/.env');
 
 require __DIR__ . '/vendor/shopware/platform/src/Core/TestBootstrap.php';
 
-$remotelyCalledApiTest = new Runner();
+$remotelyCalledApiTest = new AdminApiRunner();
 $remotelyCalledApiTest->beforeCall(true);
 $remotelyCalledApiTest->afterCall(true);
 
