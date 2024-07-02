@@ -1,10 +1,14 @@
-# Shopware Remote Admin API Test Runner
+# Shopware Remote API Test Runner
 
-Shopware provides an Admin API which grants more or less direct access to the DAL. Integrations can be used to access this API. The Admin API is the most convient way to read data from and write data to Shopware from an outside application.
+Shopware provides two APIs: the Admin API and the Store API. 
+
+The Admin API grants more or less direct access to the DAL. Integrations can be used to access this API. The Admin API is the most convenient way to read data from and write data to Shopware from an outside application.
+
+The Store API is customer focused and allows the headless usage of a Storefront. It provides a much better and more natural way to create carts and place orders because they go through Shopware calculation logics.
 
 ## Do I really require this project?
 
-The [documentation of the Admin API](https://shopware.stoplight.io/docs/admin-api/branches/v6.5/twpxvnspkg3yu-quick-start-guide) is generate automatically from the DAL entity definitions of Shopware. However, at some points, the documentation doesn't provide enough details for the development of an application that uses the Admin API. This test runner is intended to provide a more detailed documentation of the Admin API.
+The [documentation of the Admin API](https://shopware.stoplight.io/docs/admin-api/branches/v6.5/twpxvnspkg3yu-quick-start-guide) and the [documentation of the Store API](https://shopware.stoplight.io/docs/store-api/branches/v6.5/38777d33d92dc-quick-start-guide) are generated (at least partially) automatically from the DAL entity definitions of Shopware. However, at some points, the documentations doesn't provide enough details for the development of an application that uses the Admin or Store API.
 
 As all of you know, tests can be used to do three things: verify that the code works as expected, document the code, and provide the ability to debug the running code. While Unit tests should be the basis of your test pyramid, End-to-End tests can be used to verify that the API interaction works as expected.
 
@@ -37,7 +41,7 @@ tests:
     - ./:/var/www/html
 
 e2e-test-shopware:
-  image: ghcr.io/it-bens/it-bens/shopware-remote-admin-api-test-runner:6.5.6.1_de-DE_EUR
+  image: ghcr.io/it-bens/it-bens/shopware-remote-api-test-runner:6.5.6.1_de-DE_EUR
   extra_hosts:
     - host.docker.internal:host-gateway
 ```
@@ -49,7 +53,7 @@ The Shopware URL would be `http://e2e-test-shopware:80`.
 If you need to modify the Shopware instance, you can create a new Dockerfile that uses the image of this project as a base image. The Dockerfile could look like this:
 
 ```Dockerfile
-FROM ghcr.io/it-bens/it-bens/shopware-remote-admin-api-test-runner:6.5.6.1_de-DE_EUR
+FROM ghcr.io/it-bens/it-bens/shopware-remote-api-test-runner:6.5.6.1_de-DE_EUR
 
 RUN apt update && apt install -y unzip
 
@@ -60,20 +64,20 @@ ADD docker/test-e2e/satis.json /opt/satis/satis.json
 RUN cd /opt/satis && \
     php bin/satis build ./satis.json ./public
 
-RUN cd /opt/shopware-remote-admin-api-test-runner && \
+RUN cd /opt/shopware-remote-api-test-runner && \
     composer config repositories.local composer http://localhost:8090 && \
     composer config secure-http false
 
 RUN service apache2 start && \
     service mariadb start && \
-    cd /opt/shopware-remote-admin-api-test-runner && \
+    cd /opt/shopware-remote-api-test-runner && \
     composer require umbrella/t-virus && \
     php -d memory_limit=-1 bin/console plugin:refresh && \
     php -d memory_limit=-1 bin/console plugin:install UmbrellaTVirus && \
     php -d memory_limit=-1 bin/console plugin:activate UmbrellaTVirus && \
     php -d memory_limit=-1 bin/console cache:clear && \
     php -d memory_limit=-1 backup_database.php && \
-    chown -R www-data:www-data /opt/shopware-remote-admin-api-test-runner
+    chown -R www-data:www-data /opt/shopware-remote-api-test-runner
 ```
 
 Don't be confused by the Dockerfile, I will explain the backup and plugin stuff later.
@@ -126,7 +130,7 @@ The database reset can be done in two ways:
 1) The `reset_database.php` script can be used via CLI.
 2) A HTTP request to `/reset`. Any HTTP method can be used. No payload or query parameters are required.
 
-The database backups are stored in the `/opt/shopware-remote-admin-api-test-runner/var/dump` directory. 
+The database backups are stored in the `/opt/shopware-remote-api-test-runner/var/dump` directory. 
 
 ### The plugin stuff
 
@@ -157,7 +161,7 @@ RUN cd /opt/satis && \
 Satis can then be added to the `composer.json` file of this project (inside the container). Also insecure connections have to be allowed:
     
 ```Dockerfile
-RUN cd /opt/shopware-remote-admin-api-test-runner && \
+RUN cd /opt/shopware-remote-api-test-runner && \
 composer config repositories.local composer http://localhost:8090 && \
 composer config secure-http false
 ```
@@ -169,7 +173,7 @@ After that, it's the usual install/activation process of Shopware. But there is 
 Shopware allows the upload of images and other static files via Admin/Action API. If the image upload should be tested with this image, access to the image via URL is necessary. Because a test-image shouldn't require access to the internet, the images of this project contain the ability to serve static files via port `8100`. The files have to be placed in the `/opt/static` directory. The usage in a derived image could look like this:
 
 ```Dockerfile
-FROM ghcr.io/it-bens/it-bens/shopware-remote-admin-api-test-runner:6.5.6.1_de-DE_EUR
+FROM ghcr.io/it-bens/it-bens/shopware-remote-api-test-runner:6.5.6.1_de-DE_EUR
 
 ADD /path/to/local/image.jpg /opt/static/image.jpg
 ```
@@ -210,7 +214,7 @@ Because the PHP input stream is read-only, I couldn't find a way to hook into th
 
 ## What's next?
 
-The Admin API is really good for ... administration stuff. But it's cumbersome to use to create data that is normally created by a user, like orders. That's why I want to explore how this project can be used for the Shop API as well.
+Shopware is able to serve documents and pictures. It requires a publicly accessible storage to do so. Currently, this Shopware instance cannot serve stores files. That's why I want to explore how this project can be used to test the document and media API.
 
 ## Contributing
 I am really happy that the software developer community loves Open Source, like I do! ♥
