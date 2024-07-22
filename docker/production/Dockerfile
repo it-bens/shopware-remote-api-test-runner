@@ -109,6 +109,7 @@ LABEL org.opencontainers.image.authors="Martin Bens <martin.bens@it-bens.de>" \
 RUN set -ex; \
     apt-get update && \
     apt-get -y --no-install-recommends install \
+    git \
     gnupg \
     lsb-release \
     sudo \
