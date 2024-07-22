@@ -1,7 +1,9 @@
 ## build context is at docker/
 
-FROM php:8.2-apache AS php_webserver_upstream
-FROM php:8.2-cli AS php_cli_upstream
+ARG PHP_VERSION=8.2
+
+FROM php:$PHP_VERSION-apache AS php_webserver_upstream
+FROM php:$PHP_VERSION-cli AS php_cli_upstream
 FROM composer/composer:2-bin AS composer_upstream
 FROM mlocati/php-extension-installer:2 AS php_extension_installer_upstream
 
@@ -56,6 +58,7 @@ RUN set -ex; \
     apt-get update && \
     apt-get -y --no-install-recommends install \
     $PHPIZE_DEPS \
+    git \
     unzip && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*

@@ -27,6 +27,17 @@ jobs:
         shopware_version: ['6.5.4.1', '6.5.5.2', '6.5.6.1', '6.5.7.4', '6.5.8.11']
         locale: ['de-DE', 'en-GB']
         currency: ['EUR']
+        include:
+          - shopware_version: '6.5.4.1'
+            php_version: '8.2'
+          - shopware_version: '6.5.5.2'
+            php_version: '8.2'
+          - shopware_version: '6.5.6.1'
+            php_version: '8.2'
+          - shopware_version: '6.5.7.4'
+            php_version: '8.2'
+          - shopware_version: '6.5.8.11'
+            php_version: '8.3'
     steps:
       - name: Check out code
         uses: actions/checkout@v3
@@ -46,6 +57,7 @@ jobs:
           push: true
           tags: ghcr.io/it-bens/${{ github.repository }}:${{ matrix.shopware_version }}_${{ matrix.locale }}_${{ matrix.currency }}
           build-args: |
+            PHP_VERSION=${{ matrix.php_version }}
             SHOPWARE_VERSION=${{ matrix.shopware_version }}
             LOCALE=${{ matrix.locale }}
             CURRENCY=${{ matrix.currency }}
