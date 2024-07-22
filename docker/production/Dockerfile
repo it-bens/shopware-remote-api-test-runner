@@ -66,6 +66,8 @@ RUN set -ex; \
 # php extensions installer: https://github.com/mlocati/docker-php-extension-installer
 COPY --from=php_extension_installer_upstream --link /usr/bin/install-php-extensions /usr/local/bin/
 RUN install-php-extensions \
+    ctype \
+    iconv \
     zip
 
 # Set environment variables for Composer
@@ -107,6 +109,7 @@ LABEL org.opencontainers.image.authors="Martin Bens <martin.bens@it-bens.de>" \
 RUN set -ex; \
     apt-get update && \
     apt-get -y --no-install-recommends install \
+    git \
     gnupg \
     lsb-release \
     sudo \
