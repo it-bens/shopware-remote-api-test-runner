@@ -75,4 +75,12 @@ class AdminApiRunner
     {
         return self::class;
     }
+
+    /**
+     * This method is required because the traits are normally used in test classes.
+     */
+    private static function nameWithDataSet(): string
+    {
+        return self::class;
+    }
 }
