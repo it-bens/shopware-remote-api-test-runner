@@ -148,6 +148,10 @@ RUN /bin/sh -c echo debconf mysql-server/root_password password root | debconf-s
     mysql --user=root --password=root -e "CREATE USER 'root'@'%' IDENTIFIED BY 'root';GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' WITH GRANT OPTION;FLUSH PRIVILEGES;use mysql;select user from user;" && \
     service mariadb restart
 
+ADD docker/production/mysql/ /etc/mysql/conf.d/
+RUN chmod -R 0444 /etc/mysql/conf.d/ && \
+    service mariadb start
+
 RUN rm /etc/apache2/sites-enabled/* && \
     rm /etc/apache2/sites-available/*
 ADD docker/production/apache.conf /etc/apache2/sites-available/default.conf
