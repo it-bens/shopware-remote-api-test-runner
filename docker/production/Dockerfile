@@ -175,7 +175,10 @@ WORKDIR /opt/shopware-remote-api-test-runner
 # set jwt key permissions
 RUN chmod -R 660 /opt/shopware-remote-api-test-runner/config/jwt/private.pem /opt/shopware-remote-api-test-runner/config/jwt/public.pem
 
-RUN service mariadb start && \
+RUN sudo -u www-data sed -i "/^];/i\    Shopware\\\Administration\\\Administration::class => ['all' => true]," /opt/shopware-remote-api-test-runner/config/bundles.php && \
+    sudo -u www-data sed -i "/^];/i\    Shopware\\\Elasticsearch\\\Elasticsearch::class => ['all' => true]," /opt/shopware-remote-api-test-runner/config/bundles.php && \
+    sudo -u www-data sed -i "/^];/i\    Shopware\\\Storefront\\\Storefront::class => ['all' => true]," /opt/shopware-remote-api-test-runner/config/bundles.php && \
+    service mariadb start && \
     sudo -u www-data mkdir -p /opt/shopware-remote-api-test-runner/var/dump && \
     sudo -u www-data php -d memory_limit=-1 /opt/shopware-remote-api-test-runner/setup.php "$LOCALE" "$CURRENCY"
 
