@@ -2,22 +2,6 @@ name: Build and Push Docker Images
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - 'main'
-    paths:
-      - 'docker/production/Dockerfile'
-      - 'composer.json'
-      - 'src/**'
-      - '*.php'
-  pull_request:
-    branches:
-      - 'main'
-    paths:
-      - 'docker/production/Dockerfile'
-      - 'composer.json'
-      - 'src/**'
-      - '*.php'
 
 jobs:
   build-and-push:
