@@ -40,8 +40,9 @@
 ![Static Badge](https://img.shields.io/badge/Shopware-6.6.5.0-189eff?logo=shopware)
 ![Static Badge](https://img.shields.io/badge/Shopware-6.6.5.1-189eff?logo=shopware)
 ![Static Badge](https://img.shields.io/badge/Shopware-6.6.6.0-189eff?logo=shopware)
-![Static Badge](https://img.shields.io/badge/Shopware-6.6.0.1-189eff?logo=shopware)
+![Static Badge](https://img.shields.io/badge/Shopware-6.6.6.1-189eff?logo=shopware)
 ![Static Badge](https://img.shields.io/badge/Shopware-6.6.7.0-189eff?logo=shopware)
+![Static Badge](https://img.shields.io/badge/Shopware-6.6.7.1-189eff?logo=shopware)
 
 Shopware provides two APIs: the Admin API and the Store API. 
 
