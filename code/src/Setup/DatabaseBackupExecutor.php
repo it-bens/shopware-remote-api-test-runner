@@ -40,7 +40,7 @@ final class DatabaseBackupExecutor
 
         file_put_contents($path, 'SET unique_checks=0;SET foreign_key_checks=0;SET autocommit=0;');
         $cmd = sprintf(
-            'mysqldump -u %s %s -h %s --port=%s -q --opt --hex-blob --no-autocommit %s >> %s',
+            'mariadb-dump -u %s %s -h %s --port=%s -q --opt --hex-blob --no-autocommit %s >> %s',
             escapeshellarg($params['user'] ?? ''),
             $passwordString,
             escapeshellarg($params['host'] ?? ''),

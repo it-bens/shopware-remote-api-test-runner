@@ -39,7 +39,7 @@ final class DatabaseRestoreExecutor
         $path = sprintf('%s/%s_%s.sql', $this->backupDirectory, $params['host'] ?? '', $dbName);
 
         $cmd = sprintf(
-            'mysql -u %s %s -h %s --port=%s %s < %s',
+            'mariadb -u %s %s -h %s --port=%s %s < %s',
             escapeshellarg($params['user'] ?? ''),
             $passwordString,
             escapeshellarg($params['host'] ?? ''),
