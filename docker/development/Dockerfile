@@ -1,5 +1,5 @@
 ## build context is at docker/
-FROM php:8.2-apache
+FROM php:8.3-apache
 WORKDIR /var/www/html
 
 # install dependencies
