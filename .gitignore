@@ -10,13 +10,13 @@
 ###< macOS ###
 
 ###> Composer ###
-/composer.lock
-/vendor/
+/code/composer.lock
+/code/vendor/
 ###< Composer ###
 
 ###> Symfony ###
 /.env.test
 /public/bundles/
-/src/.preload.php
+/code/src/.preload.php
 /var/
 ###< Symfony ###

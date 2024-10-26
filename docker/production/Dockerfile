@@ -32,7 +32,7 @@ ENV COMPOSER_ALLOW_SUPERUSER=1 \
 COPY --from=composer_upstream --link /composer /usr/bin/composer
 
 # copy code
-ADD ./ /var/www/html
+ADD ./code/ /var/www/html
 
 RUN jq --arg v "$SHOPWARE_VERSION" '.require."shopware/platform" = $v' composer.json > composer.json.tmp && \
     mv composer.json.tmp composer.json && \
