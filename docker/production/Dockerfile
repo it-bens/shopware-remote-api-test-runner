@@ -2,8 +2,8 @@
 
 ARG PHP_VERSION=8.2
 
-FROM php:$PHP_VERSION-apache AS php_webserver_upstream
-FROM php:$PHP_VERSION-cli AS php_cli_upstream
+FROM php:$PHP_VERSION-apache-bookworm AS php_webserver_upstream
+FROM php:$PHP_VERSION-cli-bookworm AS php_cli_upstream
 FROM composer/composer:2-bin AS composer_upstream
 FROM mlocati/php-extension-installer:2 AS php_extension_installer_upstream
 
