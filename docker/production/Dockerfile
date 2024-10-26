@@ -144,8 +144,9 @@ RUN /bin/sh -c echo debconf mysql-server/root_password password root | debconf-s
     rm -rf /var/lib/apt/lists/* /var/cache/apt/* && \
     chmod 0444 /etc/mysql/my.cnf && \
     service mariadb start && \
-    mysql --user=root --password=root -e "ALTER USER 'root'@'localhost' IDENTIFIED BY 'root';FLUSH PRIVILEGES;use mysql;select user from user;" && \
-    mysql --user=root --password=root -e "CREATE USER 'root'@'%' IDENTIFIED BY 'root';GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' WITH GRANT OPTION;FLUSH PRIVILEGES;use mysql;select user from user;" && \
+    mysqladmin -u root password 'root' && \
+    mysql --user=root --password=root -e "ALTER USER 'root'@'localhost' IDENTIFIED VIA unix_socket OR mysql_native_password USING PASSWORD('root');FLUSH PRIVILEGES;use mysql;select user from user;" && \
+    mysql --user=root --password=root -e "CREATE USER 'root'@'%' IDENTIFIED VIA unix_socket OR mysql_native_password USING PASSWORD('root');GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' WITH GRANT OPTION;FLUSH PRIVILEGES;use mysql;select user from user;" && \
     service mariadb restart
 
 ADD docker/production/mysql/ /etc/mysql/conf.d/
@@ -171,7 +172,9 @@ RUN touch /opt/shopware-remote-api-test-runner/.env && \
     echo "DATABASE_URL=\"$DATABASE_URL\"" >> /opt/shopware-remote-api-test-runner/.env && \
     echo "KERNEL_CLASS=\"$KERNEL_CLASS\"" >> /opt/shopware-remote-api-test-runner/.env && \
     chown www-data:www-data /opt/shopware-remote-api-test-runner/.env
+
 WORKDIR /opt/shopware-remote-api-test-runner
+
 # set jwt key permissions
 RUN chmod -R 660 /opt/shopware-remote-api-test-runner/config/jwt/private.pem /opt/shopware-remote-api-test-runner/config/jwt/public.pem
 
@@ -180,7 +183,8 @@ RUN sudo -u www-data sed -i "/^];/i\    Shopware\\\Administration\\\Administrati
     sudo -u www-data sed -i "/^];/i\    Shopware\\\Storefront\\\Storefront::class => ['all' => true]," /opt/shopware-remote-api-test-runner/config/bundles.php && \
     service mariadb start && \
     sudo -u www-data mkdir -p /opt/shopware-remote-api-test-runner/var/dump && \
-    sudo -u www-data php -d memory_limit=-1 /opt/shopware-remote-api-test-runner/setup.php "$LOCALE" "$CURRENCY"
+    sudo -u www-data php -d memory_limit=-1 /opt/shopware-remote-api-test-runner/setup.php "$LOCALE" "$CURRENCY" && \
+    service mariadb restart
 
 RUN cp /opt/shopware-remote-api-test-runner/vendor/shopware/platform/bin/shopware /opt/shopware-remote-api-test-runner/bin/console
 
