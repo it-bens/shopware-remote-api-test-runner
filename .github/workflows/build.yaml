@@ -176,7 +176,7 @@ jobs:
           context: .
           file: ./docker/production/Dockerfile
           push: true
-          tags: ghcr.io/it-bens/${{ github.repository }}:${{ matrix.shopware_version }}_${{ matrix.locale }}_${{ matrix.currency }}
+          tags: ghcr.io/${{ github.repository }}:${{ matrix.shopware_version }}_${{ matrix.locale }}_${{ matrix.currency }}
           build-args: |
             PHP_VERSION=${{ matrix.php_version }}
             SHOPWARE_VERSION=${{ matrix.shopware_version }}

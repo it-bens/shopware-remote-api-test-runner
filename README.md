@@ -89,7 +89,7 @@ tests:
     - ./:/var/www/html
 
 e2e-test-shopware:
-  image: ghcr.io/it-bens/it-bens/shopware-remote-api-test-runner:6.5.6.1_de-DE_EUR
+  image: ghcr.io/it-bens/shopware-remote-api-test-runner:6.5.6.1_de-DE_EUR
   extra_hosts:
     - host.docker.internal:host-gateway
 ```
@@ -101,7 +101,7 @@ The Shopware URL would be `http://e2e-test-shopware:80`.
 If you need to modify the Shopware instance, you can create a new Dockerfile that uses the image of this project as a base image. The Dockerfile could look like this:
 
 ```Dockerfile
-FROM ghcr.io/it-bens/it-bens/shopware-remote-api-test-runner:6.5.6.1_de-DE_EUR
+FROM ghcr.io/it-bens/shopware-remote-api-test-runner:6.5.6.1_de-DE_EUR
 
 RUN apt update && apt install -y unzip
 
@@ -221,7 +221,7 @@ After that, it's the usual install/activation process of Shopware. But there is 
 Shopware allows the upload of images and other static files via Admin/Action API. If the image upload should be tested with this image, access to the image via URL is necessary. Because a test-image shouldn't require access to the internet, the images of this project contain the ability to serve static files via port `8100`. The files have to be placed in the `/opt/static` directory. The usage in a derived image could look like this:
 
 ```Dockerfile
-FROM ghcr.io/it-bens/it-bens/shopware-remote-api-test-runner:6.5.6.1_de-DE_EUR
+FROM ghcr.io/it-bens/shopware-remote-api-test-runner:6.5.6.1_de-DE_EUR
 
 ADD /path/to/local/image.jpg /opt/static/image.jpg
 ```
