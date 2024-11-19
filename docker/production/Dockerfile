@@ -91,10 +91,12 @@ ARG PHP_VERSION=8.2
 ARG SHOPWARE_VERSION="^6.5"
 ARG LOCALE="en-GB"
 ARG CURRENCY="EUR"
+ARG SHOPWARE_BASE_URL="http://localhost"
 
 ENV APP_ENV="test"
 ENV APP_DEBUG="1"
 ENV APP_SECRET="!not-a-secret!"
+ENV APP_URL="$SHOPWARE_BASE_URL"
 ENV KERNEL_CLASS="Shopware\Core\Kernel"
 ENV DATABASE_URL="mysql://root:root@127.0.0.1:3306/shopware_test?serverVersion=mariadb-11.4.4"
 
@@ -106,6 +108,7 @@ LABEL org.opencontainers.image.authors="Martin Bens <martin.bens@it-bens.de>" \
       shopware.version=$SHOPWARE_VERSION \
       shopware.locale=$LOCALE \
       shopware.currency=$CURRENCY \
+      shopware.base_url=$SHOPWARE_BASE_URL \
       php.version=$PHP_VERSION \
       mariadb.version=11.4.4
 
@@ -179,6 +182,7 @@ RUN touch /opt/shopware-remote-api-test-runner/.env && \
     echo "APP_ENV=\"$APP_ENV\"" >> /opt/shopware-remote-api-test-runner/.env && \
     echo "APP_DEBUG=\"$APP_DEBUG\"" >> /opt/shopware-remote-api-test-runner/.env && \
     echo "APP_SECRET=\"$APP_SECRET\"" >> /opt/shopware-remote-api-test-runner/.env && \
+    echo "APP_URL=\"$APP_URL\"" >> /opt/shopware-remote-api-test-runner/.env && \
     echo "DATABASE_URL=\"$DATABASE_URL\"" >> /opt/shopware-remote-api-test-runner/.env && \
     echo "KERNEL_CLASS=\"$KERNEL_CLASS\"" >> /opt/shopware-remote-api-test-runner/.env && \
     chown www-data:www-data /opt/shopware-remote-api-test-runner/.env
