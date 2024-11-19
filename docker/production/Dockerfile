@@ -86,6 +86,8 @@ RUN cd /opt/satis && \
 
 FROM php_webserver_upstream AS project_runner
 
+ARG PHP_VERSION=8.2
+
 ARG SHOPWARE_VERSION="^6.5"
 ARG LOCALE="en-GB"
 ARG CURRENCY="EUR"
@@ -103,7 +105,9 @@ LABEL org.opencontainers.image.authors="Martin Bens <martin.bens@it-bens.de>" \
       org.opencontainers.image.licenses="MIT" \
       shopware.version=$SHOPWARE_VERSION \
       shopware.locale=$LOCALE \
-      shopware.currency=$CURRENCY
+      shopware.currency=$CURRENCY \
+      php.version=$PHP_VERSION \
+      mariadb.version=11.4.4
 
 ## add MariaDB repository for more recent versions
 RUN mkdir -p /etc/apt/keyrings && \
