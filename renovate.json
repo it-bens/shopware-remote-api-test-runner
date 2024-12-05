@@ -12,6 +12,27 @@
       "schedule": [
         "every weekend"
       ]
+    },
+    {
+      "matchDatasources": [
+        "docker"
+      ],
+      "groupName": "Docker dependencies",
+      "schedule": [
+        "every weekend"
+      ]
+    }
+  ],
+  "regexManagers": [
+    {
+      "fileMatch": ["^\\.github/workflows/.*\\.yml$"],
+      "matchStrings": [
+        "php_version: '(?<currentValue>[0-9\\.]+)'"
+      ],
+      "datasourceTemplate": "docker",
+      "depNameTemplate": "php",
+      "versioningTemplate": "semver",
+      "rangeStrategy": "update-lockfile"
     }
   ]
 }
