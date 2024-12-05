@@ -32,7 +32,7 @@
       "datasourceTemplate": "docker",
       "depNameTemplate": "php",
       "versioningTemplate": "semver",
-      "rangeStrategy": "update-lockfile"
+      "matchCurrentVersion": ">= {{currentValue}} < {{currentValue | split('.')[0]}}.{{currentValue | split('.')[1] | plus(1)}}"
     }
   ]
 }
