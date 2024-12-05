@@ -3,6 +3,7 @@
   "extends": [
     "config:recommended"
   ],
+  "separateMinorPatch": true,
   "packageRules": [
     {
       "matchDatasources": [
@@ -18,6 +19,32 @@
         "docker"
       ],
       "groupName": "Docker dependencies",
+      "schedule": [
+        "every weekend"
+      ]
+    },
+    {
+      "matchDepNames": [
+        "php"
+      ],
+      "matchUpdateTypes": ["major"],
+      "groupName": "PHP major versions",
+      "enabled": false
+    },
+    {
+      "matchDepNames": [
+        "php"
+      ],
+      "matchUpdateTypes": ["minor"],
+      "groupName": "PHP minor versions",
+      "enabled": false
+    },
+    {
+      "matchDepNames": [
+        "php"
+      ],
+      "matchUpdateTypes": ["patch"],
+      "groupName": "PHP patch versions",
       "schedule": [
         "every weekend"
       ]
