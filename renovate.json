@@ -27,7 +27,7 @@
     {
       "customType": "regex",
       "fileMatch": [
-        "^\\.github/workflows/.*\\.yml$"
+        "^\\.github/workflows/.*\\.(yml|yaml)$"
       ],
       "matchStrings": [
         "php_version: '(?<currentValue>[0-9\\.]+)'"
