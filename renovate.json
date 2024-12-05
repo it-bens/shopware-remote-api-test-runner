@@ -23,9 +23,12 @@
       ]
     }
   ],
-  "regexManagers": [
+  "customManagers": [
     {
-      "fileMatch": ["^\\.github/workflows/.*\\.yml$"],
+      "customType": "regex",
+      "fileMatch": [
+        "^\\.github/workflows/.*\\.yml$"
+      ],
       "matchStrings": [
         "php_version: '(?<currentValue>[0-9\\.]+)'"
       ],
