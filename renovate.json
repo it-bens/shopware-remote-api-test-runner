@@ -1,13 +1,17 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:base"
+    "config:recommended"
   ],
   "packageRules": [
     {
-      "matchDatasources": ["github-tags"],
+      "matchDatasources": [
+        "github-tags"
+      ],
       "groupName": "github workflow actions",
-      "schedule": ["every weekend"]
+      "schedule": [
+        "every weekend"
+      ]
     }
   ]
 }
