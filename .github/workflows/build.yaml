@@ -7,6 +7,7 @@ jobs:
   build-and-push:
     runs-on: ubuntu-latest
     strategy:
+      max-parallel: 10
       matrix:
         shopware_version:
 #          - '6.5.4.0' (Migration error: An exception occurred while executing a query: SQLSTATE[HY000]: General error: 1901 Function or expression 'variant_listing_config' cannot be used in the CHECK clause of `variant_listing_config)
