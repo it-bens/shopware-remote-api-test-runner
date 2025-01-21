@@ -3,6 +3,7 @@
 ARG PHP_VERSION=8.2
 
 FROM ghcr.io/it-bens/shopware-remote-api-test-runner:base_$PHP_VERSION AS php_webserver_upstream
+FROM ghcr.io/it-bens/shopware-remote-api-test-runner:helper_satis_builder_$PHP_VERSION AS satis_upstream
 FROM php:$PHP_VERSION-cli-bookworm AS php_cli_upstream
 FROM composer/composer:2-bin AS composer_upstream
 FROM mlocati/php-extension-installer:2 AS php_extension_installer_upstream
@@ -51,31 +52,7 @@ RUN composer update --no-cache --prefer-dist --no-scripts --no-interaction --ign
     docker-compose.yml \
     docker
 
-FROM php_cli_upstream AS project_builder_satis
-
-# install dependencies
-RUN set -ex; \
-    apt-get update && \
-    apt-get -y --no-install-recommends install \
-    $PHPIZE_DEPS \
-    git \
-    unzip && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-
-# php extensions installer: https://github.com/mlocati/docker-php-extension-installer
-COPY --from=php_extension_installer_upstream /usr/bin/install-php-extensions /usr/local/bin/
-RUN install-php-extensions \
-    ctype \
-    iconv \
-    zip
-
-# Set environment variables for Composer
-ENV COMPOSER_ALLOW_SUPERUSER=1 \
-    PATH="${PATH}:/root/.composer/vendor/bin"
-
-# Install Composer
-COPY --from=composer_upstream /composer /usr/bin/composer
+FROM satis_upstream AS project_builder_satis
 
 RUN mkdir -p /opt && \
     cd /opt && \
