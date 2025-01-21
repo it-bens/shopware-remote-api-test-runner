@@ -29,7 +29,7 @@ ENV COMPOSER_ALLOW_SUPERUSER=1 \
     PATH="${PATH}:/root/.composer/vendor/bin"
 
 # Install Composer
-COPY --from=composer_upstream --link /composer /usr/bin/composer
+COPY --from=composer_upstream /composer /usr/bin/composer
 
 # copy code
 ADD ./code/ /var/www/html
@@ -64,7 +64,7 @@ RUN set -ex; \
     rm -rf /var/lib/apt/lists/*
 
 # php extensions installer: https://github.com/mlocati/docker-php-extension-installer
-COPY --from=php_extension_installer_upstream --link /usr/bin/install-php-extensions /usr/local/bin/
+COPY --from=php_extension_installer_upstream /usr/bin/install-php-extensions /usr/local/bin/
 RUN install-php-extensions \
     ctype \
     iconv \
@@ -75,7 +75,7 @@ ENV COMPOSER_ALLOW_SUPERUSER=1 \
     PATH="${PATH}:/root/.composer/vendor/bin"
 
 # Install Composer
-COPY --from=composer_upstream --link /composer /usr/bin/composer
+COPY --from=composer_upstream /composer /usr/bin/composer
 
 RUN mkdir -p /opt && \
     cd /opt && \
@@ -132,7 +132,7 @@ RUN set -ex; \
     rm -rf /var/lib/apt/lists/*
 
 # php extensions installer: https://github.com/mlocati/docker-php-extension-installer
-COPY --from=php_extension_installer_upstream --link /usr/bin/install-php-extensions /usr/local/bin/
+COPY --from=php_extension_installer_upstream /usr/bin/install-php-extensions /usr/local/bin/
 RUN install-php-extensions \
     apcu \
     gd \
@@ -145,7 +145,7 @@ ENV COMPOSER_ALLOW_SUPERUSER=1 \
     PATH="${PATH}:/root/.composer/vendor/bin"
 
 # Install Composer (required for installing Shopware plugins)
-COPY --from=composer_upstream --link /composer /usr/bin/composer
+COPY --from=composer_upstream /composer /usr/bin/composer
 
 # install MariaDB server
 RUN /bin/sh -c echo debconf mysql-server/root_password password root | debconf-set-selections && \
@@ -177,7 +177,7 @@ EXPOSE 80
 # Port 8090 for Satis must not be exposed.
 
 # copy shopware remote api test runner code
-COPY --from=project_builder --link --chown=www-data:www-data /var/www/html /opt/shopware-remote-api-test-runner
+COPY --from=project_builder --chown=www-data:www-data /var/www/html /opt/shopware-remote-api-test-runner
 RUN touch /opt/shopware-remote-api-test-runner/.env && \
     echo "APP_ENV=\"$APP_ENV\"" >> /opt/shopware-remote-api-test-runner/.env && \
     echo "APP_DEBUG=\"$APP_DEBUG\"" >> /opt/shopware-remote-api-test-runner/.env && \
@@ -203,7 +203,7 @@ RUN sudo -u www-data sed -i "/^];/i\    Shopware\\\Administration\\\Administrati
 RUN cp /opt/shopware-remote-api-test-runner/vendor/shopware/platform/bin/shopware /opt/shopware-remote-api-test-runner/bin/console
 
 # copy satis code
-COPY --from=project_builder_satis --link --chown=www-data:www-data /opt/satis /opt/satis
+COPY --from=project_builder_satis --chown=www-data:www-data /opt/satis /opt/satis
 
 # create static files directory
 RUN mkdir -p /opt/static && \
