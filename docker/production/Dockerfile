@@ -5,8 +5,8 @@ ARG PHP_VERSION=8.2
 FROM ghcr.io/it-bens/shopware-remote-api-test-runner:base_$PHP_VERSION AS php_webserver_upstream
 FROM ghcr.io/it-bens/shopware-remote-api-test-runner:helper_satis_builder_$PHP_VERSION AS satis_upstream
 FROM php:$PHP_VERSION-cli-bookworm AS php_cli_upstream
-FROM composer/composer:2-bin AS composer_upstream
-FROM mlocati/php-extension-installer:2 AS php_extension_installer_upstream
+FROM ghcr.io/composer/docker:2-bin AS composer_upstream
+FROM ghcr.io/mlocati/php-extension-installer:2 AS php_extension_installer_upstream
 
 FROM php_cli_upstream AS project_builder
 

@@ -2,7 +2,7 @@
 
 ARG PHP_VERSION=8.2
 
-FROM mlocati/php-extension-installer:2 AS php_extension_installer_upstream
+FROM ghcr.io/mlocati/php-extension-installer:2 AS php_extension_installer_upstream
 
 FROM php:$PHP_VERSION-apache-bookworm
 
