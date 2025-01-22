@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  create-amd64-runner:
+  create-amd64-runner-1:
     name: Create Hetzner Cloud runner for AMD64
     runs-on: ubuntu-24.04
     outputs:
@@ -22,7 +22,25 @@ jobs:
           server_type: cpx21
           image: docker-ce
 
-  create-arm64-runner:
+  create-amd64-runner-2:
+    name: Create Hetzner Cloud runner for AMD64
+    runs-on: ubuntu-24.04
+    outputs:
+      label: ${{ steps.create-hcloud-runner.outputs.label }}
+      server_id: ${{ steps.create-hcloud-runner.outputs.server_id }}
+    steps:
+      - name: Create runner
+        id: create-hcloud-runner
+        uses: Cyclenerd/hcloud-github-runner@v1
+        with:
+          mode: create
+          github_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          hcloud_token: ${{ secrets.HCLOUD_TOKEN }}
+          location: hel1
+          server_type: cpx21
+          image: docker-ce
+
+  create-arm64-runner-1:
     name: Create Hetzner Cloud runner for ARM64
     runs-on: ubuntu-24.04
     outputs:
@@ -40,26 +58,104 @@ jobs:
           server_type: cax21
           image: docker-ce
 
-  build-satis-builder:
+  create-arm64-runner-2:
+    name: Create Hetzner Cloud runner for ARM64
+    runs-on: ubuntu-24.04
+    outputs:
+      label: ${{ steps.create-hcloud-runner.outputs.label }}
+      server_id: ${{ steps.create-hcloud-runner.outputs.server_id }}
+    steps:
+      - name: Create runner
+        id: create-hcloud-runner
+        uses: Cyclenerd/hcloud-github-runner@v1
+        with:
+          mode: create
+          github_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          hcloud_token: ${{ secrets.HCLOUD_TOKEN }}
+          location: hel1
+          server_type: cax21
+          image: docker-ce
+
+  label-runners:
+    name: Label Hetzner Cloud runners
+    runs-on: ubuntu-24.04
     needs:
-      - create-amd64-runner
-      - create-arm64-runner
+      - create-amd64-runner-1
+      - create-amd64-runner-2
+      - create-arm64-runner-1
+      - create-arm64-runner-2
     strategy:
       matrix:
         include:
-          - runner_label: ${{ needs.create-amd64-runner.outputs.label }}
-            platform: 'amd64'
+          - runner_name: ${{ needs.create-amd64-runner-1.outputs.label }}
+            label: 'amd64'
+          - runner_name: ${{ needs.create-amd64-runner-2.outputs.label }}
+            label: 'amd64'
+          - runner_name: ${{ needs.create-arm64-runner-1.outputs.label }}
+            label: 'arm64'
+          - runner_name: ${{ needs.create-arm64-runner-2.outputs.label }}
+            label: 'arm64'
+    steps:
+      - name: Set variables
+        id: vars
+        run: |
+          echo "owner=${{ github.repository_owner }}" >> $GITHUB_ENV
+          echo "repo=$(basename ${{ github.repository }})" >> $GITHUB_ENV
+          echo "label_to_add=${{ matrix.label }}" >> $GITHUB_ENV
+
+      - name: Fetch Runner ID (optional)
+        id: get-runner-id
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        env:
+          owner: ${{ env.owner }}
+          repo: ${{ env.repo }}
+          runner_name: ${{ matrix.runner_name }}
+        with:
+          github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          script: |
+            const runners = await github.rest.actions.listSelfHostedRunnersForRepo({
+              owner: process.env.owner,
+              repo: process.env.repo
+            });
+            const runner = runners.data.runners.find(r => r.name === process.env.runner_name);
+            if (!runner) {
+              throw new Error("Runner not found");
+            }
+            core.setOutput("runner_id", runner.id);
+
+      - name: Add label to Runner
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        env:
+          owner: ${{ env.owner }}
+          repo: ${{ env.repo }}
+          label_to_add: ${{ env.label_to_add }}
+          PAT: ${{ secrets.FINE_GRAINED_PAT }}
+        with:
+          github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          script: |
+            await github.rest.actions.addCustomLabelsToSelfHostedRunnerForRepo({
+              owner: process.env.owner,
+              repo: process.env.repo,
+              runner_id: parseInt('${{ steps.get-runner-id.outputs.runner_id }}', 10),
+              labels: [process.env.label_to_add]
+            });
+
+  build-satis-builder:
+    needs: label-runners
+    strategy:
+      matrix:
+        include:
+          - platform: 'amd64'
             php_version: '8.2.27'
-          - runner_label: ${{ needs.create-amd64-runner.outputs.label }}
-            platform: 'amd64'
+          - platform: 'amd64'
             php_version: '8.3.16'
-          - runner_label: ${{ needs.create-arm64-runner.outputs.label }}
-            platform: 'arm64'
+          - platform: 'arm64'
             php_version: '8.2.27'
-          - runner_label: ${{ needs.create-arm64-runner.outputs.label }}
-            platform: 'arm64'
+          - platform: 'arm64'
             php_version: '8.3.16'
-    runs-on: ${{ matrix.runner_label }}
+    runs-on:
+      - 'hetzner'
+      - ${{ matrix.platform }}
     steps:
       - name: Check out code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -103,7 +199,7 @@ jobs:
       - name: Upload digest
         uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         with:
-          name: helper_satis_builder_${{ matrix.php_version }}_${{ matrix.runner_label }}-digests
+          name: helper_satis_builder_${{ matrix.php_version }}_${{ matrix.platform }}-digests
           path: /tmp/digests/helper_satis_builder_${{ matrix.php_version }}/*
           if-no-files-found: error
           retention-days: 1
@@ -113,25 +209,21 @@ jobs:
           rm -rf /tmp/digests/helper_satis_builder_${{ matrix.php_version }}
 
   build-base:
-    needs:
-      - create-amd64-runner
-      - create-arm64-runner
+    needs: label-runners
     strategy:
       matrix:
         include:
-          - runner_label: ${{ needs.create-amd64-runner.outputs.label }}
-            platform: 'amd64'
+          - platform: 'amd64'
             php_version: '8.2.27'
-          - runner_label: ${{ needs.create-amd64-runner.outputs.label }}
-            platform: 'amd64'
+          - platform: 'amd64'
             php_version: '8.3.16'
-          - runner_label: ${{ needs.create-arm64-runner.outputs.label }}
-            platform: 'arm64'
+          - platform: 'arm64'
             php_version: '8.2.27'
-          - runner_label: ${{ needs.create-arm64-runner.outputs.label }}
-            platform: 'arm64'
+          - platform: 'arm64'
             php_version: '8.3.16'
-    runs-on: ${{ matrix.runner_label }}
+    runs-on:
+      - 'hetzner'
+      - ${{ matrix.platform }}
     steps:
       - name: Check out code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -175,7 +267,7 @@ jobs:
       - name: Upload digest
         uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         with:
-          name: base_${{ matrix.php_version }}_${{ matrix.runner_label }}-digests
+          name: base_${{ matrix.php_version }}_${{ matrix.platform }}-digests
           path: /tmp/digests/base_${{ matrix.php_version }}/*
           if-no-files-found: error
           retention-days: 1
@@ -282,15 +374,13 @@ jobs:
 
   build-shopware-runner:
     needs:
-      - create-amd64-runner
-      - create-arm64-runner
       - merge-satis-builder-builds
       - merge-base-builds
     strategy:
       matrix:
-        runner_label:
-          - ${{ needs.create-amd64-runner.outputs.label }}
-          - ${{ needs.create-arm64-runner.outputs.label }}
+        platform:
+          - 'amd64'
+          - 'arm64'
         shopware_version_php_version:
 #          - { shopware_version: '6.5.4.0', php_version: '8.2.27' } (Migration error: An exception occurred while executing a query: SQLSTATE[HY000]: General error: 1901 Function or expression 'variant_listing_config' cannot be used in the CHECK clause of `variant_listing_config)
           - { shopware_version: '6.5.4.1', php_version: '8.2.27' }
@@ -344,7 +434,9 @@ jobs:
           - { shopware_version: '6.6.9.0', php_version: '8.3.16' }
         locale: [ 'de-DE', 'en-GB' ]
         currency: ['EUR']
-    runs-on: ${{ matrix.runner_label }}
+    runs-on:
+      - 'hetzner'
+      - ${{ matrix.platform }}
     env:
         PHP_VERSION: ${{ matrix.shopware_version_php_version.php_version }}
         SHOPWARE_VERSION: ${{ matrix.shopware_version_php_version.shopware_version }}
@@ -396,7 +488,7 @@ jobs:
       - name: Upload digest
         uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         with:
-          name: shopware_${{ env.SHOPWARE_VERSION }}_${{ env.LOCALE }}_${{ env.CURRENCY }}_${{ matrix.runner_label }}-digests
+          name: shopware_${{ env.SHOPWARE_VERSION }}_${{ env.LOCALE }}_${{ env.CURRENCY }}_${{ matrix.platform }}-digests
           path: /tmp/digests/shopware_${{ env.SHOPWARE_VERSION }}_${{ env.LOCALE }}_${{ env.CURRENCY }}/*
           if-no-files-found: error
           retention-days: 1
@@ -548,14 +640,27 @@ jobs:
         run: |
           docker buildx imagetools inspect 'ghcr.io/${{ github.repository }}:${{ env.SHOPWARE_VERSION }}_${{ env.LOCALE }}_${{ env.CURRENCY }}'
 
-  delete-amd64-runner:
-    name: Delete Hetzner Cloud runner
+  delete-runners:
+    name: Delete Hetzner Cloud runners
     needs:
-      - create-amd64-runner
-      - create-arm64-runner
+      - create-amd64-runner-1
+      - create-amd64-runner-2
+      - create-arm64-runner-1
+      - create-arm64-runner-2
       - build-shopware-runner
     runs-on: ubuntu-24.04
     if: ${{ always() }}
+    strategy:
+      matrix:
+        include:
+          - name: ${{ needs.create-amd64-runner-1.outputs.label }}
+            server_id: ${{ needs.create-amd64-runner-1.outputs.server_id }}
+          - name: ${{ needs.create-amd64-runner-2.outputs.label }}
+            server_id: ${{ needs.create-amd64-runner-2.outputs.server_id }}
+          - name: ${{ needs.create-arm64-runner-1.outputs.label }}
+            server_id: ${{ needs.create-arm64-runner-1.outputs.server_id }}
+          - name: ${{ needs.create-arm64-runner-2.outputs.label }}
+            server_id: ${{ needs.create-arm64-runner-2.outputs.server_id }}
     steps:
       - name: Delete runner
         uses: Cyclenerd/hcloud-github-runner@v1
@@ -563,23 +668,5 @@ jobs:
           mode: delete
           github_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
           hcloud_token: ${{ secrets.HCLOUD_TOKEN }}
-          name: ${{ needs.create-amd64-runner.outputs.label }}
-          server_id: ${{ needs.create-amd64-runner.outputs.server_id }}
-
-  delete-ard64-runner:
-    name: Delete Hetzner Cloud runner
-    needs:
-      - create-amd64-runner
-      - create-arm64-runner
-      - build-shopware-runner
-    runs-on: ubuntu-24.04
-    if: ${{ always() }}
-    steps:
-      - name: Delete runner
-        uses: Cyclenerd/hcloud-github-runner@v1
-        with:
-          mode: delete
-          github_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-          hcloud_token: ${{ secrets.HCLOUD_TOKEN }}
-          name: ${{ needs.create-arm64-runner.outputs.label }}
-          server_id: ${{ needs.create-arm64-runner.outputs.server_id }}
+          name: ${{ matrix.name }}
+          server_id: ${{ matrix.server_id }}
