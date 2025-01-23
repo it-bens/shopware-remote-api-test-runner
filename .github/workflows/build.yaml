@@ -13,7 +13,7 @@ jobs:
     steps:
       - name: Create runner
         id: create-hcloud-runner
-        uses: Cyclenerd/hcloud-github-runner@v1
+        uses: Cyclenerd/hcloud-github-runner@dca893bfda441c5ef3dd78e8d4a3deb63f819ea9 #v1.0.0
         with:
           mode: create
           github_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
@@ -31,7 +31,7 @@ jobs:
     steps:
       - name: Create runner
         id: create-hcloud-runner
-        uses: Cyclenerd/hcloud-github-runner@v1
+        uses: Cyclenerd/hcloud-github-runner@dca893bfda441c5ef3dd78e8d4a3deb63f819ea9 #v1.0.0
         with:
           mode: create
           github_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
@@ -49,7 +49,7 @@ jobs:
     steps:
       - name: Create runner
         id: create-hcloud-runner
-        uses: Cyclenerd/hcloud-github-runner@v1
+        uses: Cyclenerd/hcloud-github-runner@dca893bfda441c5ef3dd78e8d4a3deb63f819ea9 #v1.0.0
         with:
           mode: create
           github_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
@@ -67,7 +67,7 @@ jobs:
     steps:
       - name: Create runner
         id: create-hcloud-runner
-        uses: Cyclenerd/hcloud-github-runner@v1
+        uses: Cyclenerd/hcloud-github-runner@dca893bfda441c5ef3dd78e8d4a3deb63f819ea9 #v1.0.0
         with:
           mode: create
           github_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
@@ -85,7 +85,7 @@ jobs:
     steps:
       - name: Create runner
         id: create-hcloud-runner
-        uses: Cyclenerd/hcloud-github-runner@v1
+        uses: Cyclenerd/hcloud-github-runner@dca893bfda441c5ef3dd78e8d4a3deb63f819ea9 #v1.0.0
         with:
           mode: create
           github_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
@@ -103,7 +103,7 @@ jobs:
     steps:
       - name: Create runner
         id: create-hcloud-runner
-        uses: Cyclenerd/hcloud-github-runner@v1
+        uses: Cyclenerd/hcloud-github-runner@dca893bfda441c5ef3dd78e8d4a3deb63f819ea9 #v1.0.0
         with:
           mode: create
           github_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
@@ -121,7 +121,7 @@ jobs:
     steps:
       - name: Create runner
         id: create-hcloud-runner
-        uses: Cyclenerd/hcloud-github-runner@v1
+        uses: Cyclenerd/hcloud-github-runner@dca893bfda441c5ef3dd78e8d4a3deb63f819ea9 #v1.0.0
         with:
           mode: create
           github_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
@@ -139,7 +139,7 @@ jobs:
     steps:
       - name: Create runner
         id: create-hcloud-runner
-        uses: Cyclenerd/hcloud-github-runner@v1
+        uses: Cyclenerd/hcloud-github-runner@dca893bfda441c5ef3dd78e8d4a3deb63f819ea9 #v1.0.0
         with:
           mode: create
           github_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
@@ -700,7 +700,7 @@ jobs:
             server_id: ${{ needs.create-arm64-runner-4.outputs.server_id }}
     steps:
       - name: Delete runner
-        uses: Cyclenerd/hcloud-github-runner@v1
+        uses: Cyclenerd/hcloud-github-runner@dca893bfda441c5ef3dd78e8d4a3deb63f819ea9 #v1.0.0
         with:
           mode: delete
           github_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
