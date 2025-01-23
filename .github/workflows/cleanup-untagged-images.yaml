@@ -1,0 +1,18 @@
+name: Cleanup untagged Docker images
+
+on:
+  workflow_dispatch:
+
+jobs:
+  image-cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete untagged Docker images
+        uses: Chizkiyahu/delete-untagged-ghcr-action@4a33ce3cf2456d2aef98a1b6c60a12dad56cffd9 # v6.0.0
+        with:
+          token: ${{ secrets.GHCR_DELETE_PACKAGE_TOKEN }}
+          repository_owner: ${{ github.repository_owner }}
+          repository: ${{ github.repository }}
+          untagged_only: true
+          owner_type: org
+          except_untagged_multiplatform: true
