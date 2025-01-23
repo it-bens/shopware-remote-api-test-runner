@@ -1,0 +1,14 @@
+name: Cleanup GitHub action runners
+
+on:
+  workflow_dispatch:
+
+jobs:
+  runner-cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete offline self-hosted runners
+        uses: some-natalie/runner-reaper@9c8c4a220f0724d6bf488b8520599e59ee25e043 # v2.0.1
+        env:
+            GITHUB_PAT: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+            SCOPE_TYPE: "repository"
