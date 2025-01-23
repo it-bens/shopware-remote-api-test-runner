@@ -4,27 +4,65 @@ on:
   workflow_dispatch:
 
 jobs:
+  create-amd64-runner:
+    name: Create Hetzner Cloud runner for AMD64
+    runs-on: ubuntu-24.04
+    outputs:
+      label: ${{ steps.create-hcloud-runner.outputs.label }}
+      server_id: ${{ steps.create-hcloud-runner.outputs.server_id }}
+    steps:
+      - name: Create runner
+        id: create-hcloud-runner
+        uses: Cyclenerd/hcloud-github-runner@v1
+        with:
+          mode: create
+          github_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          hcloud_token: ${{ secrets.HCLOUD_TOKEN }}
+          location: hel1
+          server_type: cpx21
+          image: docker-ce
+
+  create-arm64-runner:
+    name: Create Hetzner Cloud runner for ARM64
+    runs-on: ubuntu-24.04
+    outputs:
+      label: ${{ steps.create-hcloud-runner.outputs.label }}
+      server_id: ${{ steps.create-hcloud-runner.outputs.server_id }}
+    steps:
+      - name: Create runner
+        id: create-hcloud-runner
+        uses: Cyclenerd/hcloud-github-runner@v1
+        with:
+          mode: create
+          github_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          hcloud_token: ${{ secrets.HCLOUD_TOKEN }}
+          location: hel1
+          server_type: cax21
+          image: docker-ce
+
   build-satis-builder:
-    runs-on: ubuntu-latest
+    needs:
+      - create-amd64-runner
+      - create-arm64-runner
     strategy:
       matrix:
-        php_version:
-          - '8.2.27'
-          - '8.3.16'
+        include:
+          - runner_label: ${{ needs.create-amd64-runner.outputs.label }}
+            platform: 'amd64'
+            php_version: '8.2.27'
+          - runner_label: ${{ needs.create-amd64-runner.outputs.label }}
+            platform: 'amd64'
+            php_version: '8.3.16'
+          - runner_label: ${{ needs.create-arm64-runner.outputs.label }}
+            platform: 'arm64'
+            php_version: '8.2.27'
+          - runner_label: ${{ needs.create-arm64-runner.outputs.label }}
+            platform: 'arm64'
+            php_version: '8.3.16'
+    runs-on: ${{ matrix.runner_label }}
     steps:
       - name: Check out code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-
-      - name: Set up Docker
-        uses: docker/setup-docker-action@370a7dad4b8ce8dbf00f9363e1652e5074dd6abe # v4.1.0
-        with:
-          daemon-config: |
-            {
-              "debug": true,
-              "features": {
-                "containerd-snapshotter": true
-              }
-            }
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
@@ -33,46 +71,128 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@53851d14592bedcffcf25ea515637cff71ef929a # v3.3.0
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@6524bf65af31da8d45b59e8c27de4bd072b392f5 # v3.8.0
 
-      - name: Build and push
+      - name: Build and push by digest
+        id: build
         uses: docker/build-push-action@67a2d409c0a876cbe6b11854e3e25193efe4e62d # v6.12.0
         with:
+          provenance: false
           context: .
           file: ./docker/production-helper/satis-builder/Dockerfile
-          push: true
-          tags: ghcr.io/${{ github.repository }}:helper_satis_builder_${{ matrix.php_version }}
-          platforms: linux/amd64,linux/arm64
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=${{ github.repository }}-${{ github.ref_name }}-helper_satis_builder_${{ matrix.php_version }}_${{ matrix.platform }}
+          cache-to: type=gha,scope=${{ github.repository }}-${{ github.ref_name }}-helper_satis_builder_${{ matrix.php_version }}_${{ matrix.platform }}
+          outputs: |
+            type=image,name=ghcr.io/${{ github.repository }},push-by-digest=true,name-canonical=true,push=true
           build-args: |
             PHP_VERSION=${{ matrix.php_version }}
 
+      - name: Export digest
+        run: |
+          mkdir -p /tmp/digests/helper_satis_builder_${{ matrix.php_version }}
+          digest="${{ steps.build.outputs.digest }}"
+          touch "/tmp/digests/helper_satis_builder_${{ matrix.php_version }}/${digest#sha256:}"
+
+      - name: Upload digest
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        with:
+          name: helper_satis_builder_${{ matrix.php_version }}_${{ matrix.runner_label }}-digests
+          path: /tmp/digests/helper_satis_builder_${{ matrix.php_version }}/*
+          if-no-files-found: error
+          retention-days: 1
+
+      - name: Clear digest
+        run: |
+          rm -rf /tmp/digests/helper_satis_builder_${{ matrix.php_version }}
+
   build-base:
-    runs-on: ubuntu-latest
+    needs:
+      - create-amd64-runner
+      - create-arm64-runner
+    strategy:
+      matrix:
+        include:
+          - runner_label: ${{ needs.create-amd64-runner.outputs.label }}
+            platform: 'amd64'
+            php_version: '8.2.27'
+          - runner_label: ${{ needs.create-amd64-runner.outputs.label }}
+            platform: 'amd64'
+            php_version: '8.3.16'
+          - runner_label: ${{ needs.create-arm64-runner.outputs.label }}
+            platform: 'arm64'
+            php_version: '8.2.27'
+          - runner_label: ${{ needs.create-arm64-runner.outputs.label }}
+            platform: 'arm64'
+            php_version: '8.3.16'
+    runs-on: ${{ matrix.runner_label }}
+    steps:
+      - name: Check out code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@6524bf65af31da8d45b59e8c27de4bd072b392f5 # v3.8.0
+
+      - name: Build and push by digest
+        id: build
+        uses: docker/build-push-action@67a2d409c0a876cbe6b11854e3e25193efe4e62d # v6.12.0
+        with:
+          provenance: false
+          context: .
+          file: ./docker/production-base/Dockerfile
+          cache-from: type=gha,scope=${{ github.repository }}-${{ github.ref_name }}-base_${{ matrix.php_version }}_${{ matrix.platform }}
+          cache-to: type=gha,scope=${{ github.repository }}-${{ github.ref_name }}-base_${{ matrix.php_version }}_${{ matrix.platform }}
+          outputs: |
+            type=image,name=ghcr.io/${{ github.repository }},push-by-digest=true,name-canonical=true,push=true
+          build-args: |
+            PHP_VERSION=${{ matrix.php_version }}
+
+      - name: Export digest
+        run: |
+          mkdir -p /tmp/digests/base_${{ matrix.php_version }}
+          digest="${{ steps.build.outputs.digest }}"
+          touch "/tmp/digests/base_${{ matrix.php_version }}/${digest#sha256:}"
+
+      - name: Upload digest
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        with:
+          name: base_${{ matrix.php_version }}_${{ matrix.runner_label }}-digests
+          path: /tmp/digests/base_${{ matrix.php_version }}/*
+          if-no-files-found: error
+          retention-days: 1
+
+      - name: Clear digest
+        run: |
+          rm -rf /tmp/digests/base_${{ matrix.php_version }}
+
+  merge-satis-builder-builds:
+    needs: build-satis-builder
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write
     strategy:
       matrix:
         php_version:
           - '8.2.27'
           - '8.3.16'
     steps:
-      - name: Check out code
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Download digests
+        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8
+        with:
+          pattern: helper_satis_builder_${{ matrix.php_version }}_*-digests
+          merge-multiple: true
+          path: /tmp/digests/helper_satis_builder_${{ matrix.php_version }}
 
       - name: Set up Docker
         uses: docker/setup-docker-action@370a7dad4b8ce8dbf00f9363e1652e5074dd6abe # v4.1.0
-        with:
-          daemon-config: |
-            {
-              "debug": true,
-              "features": {
-                "containerd-snapshotter": true
-              }
-            }
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
@@ -81,201 +201,299 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@53851d14592bedcffcf25ea515637cff71ef929a # v3.3.0
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@6524bf65af31da8d45b59e8c27de4bd072b392f5 # v3.8.0
+
+      - name: Create manifest list and push
+        working-directory: /tmp/digests/helper_satis_builder_${{ matrix.php_version }}
+        run: |
+          docker buildx imagetools create --tag ghcr.io/${{ github.repository }}:helper_satis_builder_${{ matrix.php_version }} \
+            $(printf 'ghcr.io/${{ github.repository }}@sha256:%s ' *)
+
+      - name: Inspect image
+        run: |
+          docker buildx imagetools inspect 'ghcr.io/${{ github.repository }}:helper_satis_builder_${{ matrix.php_version }}'
+
+  merge-base-builds:
+    needs: build-base
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      matrix:
+        php_version:
+          - '8.2.27'
+          - '8.3.16'
+    steps:
+      - name: Download digests
+        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8
+        with:
+          pattern: base_${{ matrix.php_version }}_*-digests
+          merge-multiple: true
+          path: /tmp/digests/base_${{ matrix.php_version }}
+
+      - name: Set up Docker
+        uses: docker/setup-docker-action@370a7dad4b8ce8dbf00f9363e1652e5074dd6abe # v4.1.0
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@6524bf65af31da8d45b59e8c27de4bd072b392f5 # v3.8.0
 
-      - name: Build and push
-        uses: docker/build-push-action@67a2d409c0a876cbe6b11854e3e25193efe4e62d # v6.12.0
-        with:
-          context: .
-          file: ./docker/production-base/Dockerfile
-          push: true
-          tags: ghcr.io/${{ github.repository }}:base_${{ matrix.php_version }}
-          platforms: linux/amd64,linux/arm64
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          build-args: |
-            PHP_VERSION=${{ matrix.php_version }}
+      - name: Create manifest list and push
+        working-directory: /tmp/digests/base_${{ matrix.php_version }}
+        run: |
+          docker buildx imagetools create --tag ghcr.io/${{ github.repository }}:base_${{ matrix.php_version }} \
+            $(printf 'ghcr.io/${{ github.repository }}@sha256:%s ' *)
 
-  build-and-push:
+      - name: Inspect image
+        run: |
+          docker buildx imagetools inspect 'ghcr.io/${{ github.repository }}:base_${{ matrix.php_version }}'
+
+  build-shopware-runner:
     needs:
-      - build-satis-builder
-      - build-base
-    runs-on: ubuntu-latest
+      - create-amd64-runner
+      - create-arm64-runner
+      - merge-satis-builder-builds
+      - merge-base-builds
     strategy:
-      max-parallel: 10
       matrix:
-        shopware_version:
-#          - '6.5.4.0' (Migration error: An exception occurred while executing a query: SQLSTATE[HY000]: General error: 1901 Function or expression 'variant_listing_config' cannot be used in the CHECK clause of `variant_listing_config)
-          - '6.5.4.1'
-          - '6.5.5.0'
-          - '6.5.5.1'
-          - '6.5.5.2'
-          - '6.5.6.0'
-          - '6.5.6.1'
-#          - '6.5.7.0' (Fatal error: Uncaught Error: Class "Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Version\CalculatedPriceFieldTestDefinition" not found in /opt/shopware-remote-api-test-runner/vendor/shopware/platform/src/Core/Framework/DependencyInjection/CompilerPass/EntityCompilerPass.php:50)
-          - '6.5.7.1'
-          - '6.5.7.2'
-          - '6.5.7.3'
-          - '6.5.7.4'
-          - '6.5.8.0'
-          - '6.5.8.1'
-          - '6.5.8.2'
-          - '6.5.8.3'
-          - '6.5.8.4'
-          - '6.5.8.5'
-          - '6.5.8.6'
-          - '6.5.8.7'
-          - '6.5.8.8'
-          - '6.5.8.9'
-          - '6.5.8.10'
-          - '6.5.8.11'
-          - '6.5.8.12'
-          - '6.5.8.13'
-          - '6.5.8.14'
-          - '6.5.8.15'
-          - '6.6.0.0'
-          - '6.6.0.1'
-          - '6.6.0.2'
-          - '6.6.0.3'
-          - '6.6.1.0'
-          - '6.6.1.1'
-          - '6.6.1.2'
-          - '6.6.2.0'
-          - '6.6.3.0'
-          - '6.6.3.1'
-          - '6.6.4.0'
-          - '6.6.4.1'
-          - '6.6.5.0'
-          - '6.6.5.1'
-          - '6.6.6.0'
-          - '6.6.6.1'
-          - '6.6.7.0'
-          - '6.6.7.1'
-          - '6.6.8.0'
-          - '6.6.8.1'
-          - '6.6.8.2'
-          - '6.6.9.0'
-        locale: ['de-DE', 'en-GB']
+        runner_label:
+          - ${{ needs.create-amd64-runner.outputs.label }}
+          - ${{ needs.create-arm64-runner.outputs.label }}
+        shopware_version_php_version:
+          - { shopware_version: '6.5.4.1', php_version: '8.2.27' }
+          - { shopware_version: '6.5.5.0', php_version: '8.2.27' }
+        locale: [ 'de-DE', 'en-GB' ]
         currency: ['EUR']
-        include:
-#          - shopware_version: '6.5.4.0' (Migration error: An exception occurred while executing a query: SQLSTATE[HY000]: General error: 1901 Function or expression 'variant_listing_config' cannot be used in the CHECK clause of `variant_listing_config)
-#          - php_version: '8.2.27'
-          - shopware_version: '6.5.4.1'
-            php_version: '8.2.27'
-          - shopware_version: '6.5.5.0'
-            php_version: '8.2.27'
-          - shopware_version: '6.5.5.1'
-            php_version: '8.2.27'
-          - shopware_version: '6.5.5.2'
-            php_version: '8.2.27'
-          - shopware_version: '6.5.6.0'
-            php_version: '8.2.27'
-          - shopware_version: '6.5.6.1'
-            php_version: '8.2.27'
-#          - shopware_version: '6.5.7.0' (Fatal error: Uncaught Error: Class "Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Version\CalculatedPriceFieldTestDefinition" not found in /opt/shopware-remote-api-test-runner/vendor/shopware/platform/src/Core/Framework/DependencyInjection/CompilerPass/EntityCompilerPass.php:50)
-#            php_version: '8.2.27'
-          - shopware_version: '6.5.7.1'
-            php_version: '8.2.27'
-          - shopware_version: '6.5.7.2'
-            php_version: '8.2.27'
-          - shopware_version: '6.5.7.3'
-            php_version: '8.2.27'
-          - shopware_version: '6.5.7.4'
-            php_version: '8.2.27'
-          - shopware_version: '6.5.8.0'
-            php_version: '8.3.16'
-          - shopware_version: '6.5.8.1'
-            php_version: '8.3.16'
-          - shopware_version: '6.5.8.2'
-            php_version: '8.3.16'
-          - shopware_version: '6.5.8.3'
-            php_version: '8.3.16'
-          - shopware_version: '6.5.8.4'
-            php_version: '8.3.16'
-          - shopware_version: '6.5.8.5'
-            php_version: '8.3.16'
-          - shopware_version: '6.5.8.6'
-            php_version: '8.3.16'
-          - shopware_version: '6.5.8.7'
-            php_version: '8.3.16'
-          - shopware_version: '6.5.8.8'
-            php_version: '8.3.16'
-          - shopware_version: '6.5.8.9'
-            php_version: '8.3.16'
-          - shopware_version: '6.5.8.10'
-            php_version: '8.3.16'
-          - shopware_version: '6.5.8.11'
-            php_version: '8.3.16'
-          - shopware_version: '6.5.8.12'
-            php_version: '8.3.16'
-          - shopware_version: '6.5.8.13'
-            php_version: '8.3.16'
-          - shopware_version: '6.5.8.14'
-            php_version: '8.3.16'
-          - shopware_version: '6.5.8.15'
-            php_version: '8.3.16'
-          - shopware_version: '6.6.0.0'
-            php_version: '8.3.16'
-          - shopware_version: '6.6.0.1'
-            php_version: '8.3.16'
-          - shopware_version: '6.6.0.2'
-            php_version: '8.3.16'
-          - shopware_version: '6.6.0.3'
-            php_version: '8.3.16'
-          - shopware_version: '6.6.1.0'
-            php_version: '8.3.16'
-          - shopware_version: '6.6.1.1'
-            php_version: '8.3.16'
-          - shopware_version: '6.6.1.2'
-            php_version: '8.3.16'
-          - shopware_version: '6.6.2.0'
-            php_version: '8.3.16'
-          - shopware_version: '6.6.3.0'
-            php_version: '8.3.16'
-          - shopware_version: '6.6.3.1'
-            php_version: '8.3.16'
-          - shopware_version: '6.6.4.0'
-            php_version: '8.3.16'
-          - shopware_version: '6.6.4.1'
-            php_version: '8.3.16'
-          - shopware_version: '6.6.5.0'
-            php_version: '8.3.16'
-          - shopware_version: '6.6.5.1'
-            php_version: '8.3.16'
-          - shopware_version: '6.6.6.0'
-            php_version: '8.3.16'
-          - shopware_version: '6.6.6.1'
-            php_version: '8.3.16'
-          - shopware_version: '6.6.7.0'
-            php_version: '8.3.16'
-          - shopware_version: '6.6.7.1'
-            php_version: '8.3.16'
-          - shopware_version: '6.6.8.0'
-            php_version: '8.3.16'
-          - shopware_version: '6.6.8.1'
-            php_version: '8.3.16'
-          - shopware_version: '6.6.8.2'
-            php_version: '8.3.16'
-          - shopware_version: '6.6.9.0'
-            php_version: '8.3.16'
+    runs-on: ${{ matrix.runner_label }}
+    env:
+        PHP_VERSION: ${{ matrix.shopware_version_php_version.php_version }}
+        SHOPWARE_VERSION: ${{ matrix.shopware_version_php_version.shopware_version }}
+        LOCALE: ${{ matrix.locale }}
+        CURRENCY: ${{ matrix.currency }}
     steps:
       - name: Check out code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@6524bf65af31da8d45b59e8c27de4bd072b392f5 # v3.8.0
+
+      - name: Build and push by digest
+        id: build
+        uses: docker/build-push-action@67a2d409c0a876cbe6b11854e3e25193efe4e62d # v6.12.0
+        with:
+          provenance: false
+          context: .
+          file: ./docker/production/Dockerfile
+          outputs: |
+            type=image,name=ghcr.io/${{ github.repository }},push-by-digest=true,name-canonical=true,push=true
+          build-args: |
+            PHP_VERSION=${{ env.PHP_VERSION }}
+            SHOPWARE_VERSION=${{ env.SHOPWARE_VERSION }}
+            LOCALE=${{ env.LOCALE }}
+            CURRENCY=${{ env.CURRENCY }}
+
+      - name: Export digest
+        run: |
+          mkdir -p /tmp/digests/shopware_${{ env.SHOPWARE_VERSION }}_${{ env.LOCALE }}_${{ env.CURRENCY }}
+          digest="${{ steps.build.outputs.digest }}"
+          touch "/tmp/digests/shopware_${{ env.SHOPWARE_VERSION }}_${{ env.LOCALE }}_${{ env.CURRENCY }}/${digest#sha256:}"
+
+      - name: Upload digest
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        with:
+          name: shopware_${{ env.SHOPWARE_VERSION }}_${{ env.LOCALE }}_${{ env.CURRENCY }}_${{ matrix.runner_label }}-digests
+          path: /tmp/digests/shopware_${{ env.SHOPWARE_VERSION }}_${{ env.LOCALE }}_${{ env.CURRENCY }}/*
+          if-no-files-found: error
+          retention-days: 1
+
+      - name: Clear digest
+        run: |
+          rm -rf /tmp/digests/shopware_${{ env.SHOPWARE_VERSION }}_${{ env.LOCALE }}_${{ env.CURRENCY }}
+#        include:
+#          - shopware_version: '6.5.4.0' (Migration error: An exception occurred while executing a query: SQLSTATE[HY000]: General error: 1901 Function or expression 'variant_listing_config' cannot be used in the CHECK clause of `variant_listing_config)
+#          - php_version: '8.2.27'
+#          - shopware_version: '6.5.4.1'
+#            php_version: '8.2.27'
+#          - shopware_version: '6.5.5.0'
+#            php_version: '8.2.27'
+#          - shopware_version: '6.5.5.1'
+#            php_version: '8.2.27'
+#          - shopware_version: '6.5.5.2'
+#            php_version: '8.2.27'
+#          - shopware_version: '6.5.6.0'
+#            php_version: '8.2.27'
+#          - shopware_version: '6.5.6.1'
+#            php_version: '8.2.27'
+#          - shopware_version: '6.5.7.0' (Fatal error: Uncaught Error: Class "Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Version\CalculatedPriceFieldTestDefinition" not found in /opt/shopware-remote-api-test-runner/vendor/shopware/platform/src/Core/Framework/DependencyInjection/CompilerPass/EntityCompilerPass.php:50)
+#            php_version: '8.2.27'
+#          - shopware_version: '6.5.7.1'
+#            php_version: '8.2.27'
+#          - shopware_version: '6.5.7.2'
+#            php_version: '8.2.27'
+#          - shopware_version: '6.5.7.3'
+#            php_version: '8.2.27'
+#          - shopware_version: '6.5.7.4'
+#            php_version: '8.2.27'
+#          - shopware_version: '6.5.8.0'
+#            php_version: '8.3.16'
+#          - shopware_version: '6.5.8.1'
+#            php_version: '8.3.16'
+#          - shopware_version: '6.5.8.2'
+#            php_version: '8.3.16'
+#          - shopware_version: '6.5.8.3'
+#            php_version: '8.3.16'
+#          - shopware_version: '6.5.8.4'
+#            php_version: '8.3.16'
+#          - shopware_version: '6.5.8.5'
+#            php_version: '8.3.16'
+#          - shopware_version: '6.5.8.6'
+#            php_version: '8.3.16'
+#          - shopware_version: '6.5.8.7'
+#            php_version: '8.3.16'
+#          - shopware_version: '6.5.8.8'
+#            php_version: '8.3.16'
+#          - shopware_version: '6.5.8.9'
+#            php_version: '8.3.16'
+#          - shopware_version: '6.5.8.10'
+#            php_version: '8.3.16'
+#          - shopware_version: '6.5.8.11'
+#            php_version: '8.3.16'
+#          - shopware_version: '6.5.8.12'
+#            php_version: '8.3.16'
+#          - shopware_version: '6.5.8.13'
+#            php_version: '8.3.16'
+#          - shopware_version: '6.5.8.14'
+#            php_version: '8.3.16'
+#          - shopware_version: '6.5.8.15'
+#            php_version: '8.3.16'
+#          - shopware_version: '6.6.0.0'
+#            php_version: '8.3.16'
+#          - shopware_version: '6.6.0.1'
+#            php_version: '8.3.16'
+#          - shopware_version: '6.6.0.2'
+#            php_version: '8.3.16'
+#          - shopware_version: '6.6.0.3'
+#            php_version: '8.3.16'
+#          - shopware_version: '6.6.1.0'
+#            php_version: '8.3.16'
+#          - shopware_version: '6.6.1.1'
+#            php_version: '8.3.16'
+#          - shopware_version: '6.6.1.2'
+#            php_version: '8.3.16'
+#          - shopware_version: '6.6.2.0'
+#            php_version: '8.3.16'
+#          - shopware_version: '6.6.3.0'
+#            php_version: '8.3.16'
+#          - shopware_version: '6.6.3.1'
+#            php_version: '8.3.16'
+#          - shopware_version: '6.6.4.0'
+#            php_version: '8.3.16'
+#          - shopware_version: '6.6.4.1'
+#            php_version: '8.3.16'
+#          - shopware_version: '6.6.5.0'
+#            php_version: '8.3.16'
+#          - shopware_version: '6.6.5.1'
+#            php_version: '8.3.16'
+#          - shopware_version: '6.6.6.0'
+#            php_version: '8.3.16'
+#          - shopware_version: '6.6.6.1'
+#            php_version: '8.3.16'
+#          - shopware_version: '6.6.7.0'
+#            php_version: '8.3.16'
+#          - shopware_version: '6.6.7.1'
+#            php_version: '8.3.16'
+#          - shopware_version: '6.6.8.0'
+#            php_version: '8.3.16'
+#          - shopware_version: '6.6.8.1'
+#            php_version: '8.3.16'
+#          - shopware_version: '6.6.8.2'
+#            php_version: '8.3.16'
+#          - shopware_version: '6.6.9.0'
+#            php_version: '8.3.16'
+#    steps:
+#      - name: Check out code
+#        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+#
+#      - name: Set up Docker
+#        uses: docker/setup-docker-action@370a7dad4b8ce8dbf00f9363e1652e5074dd6abe # v4.1.0
+#        with:
+#          daemon-config: |
+#            {
+#              "debug": true,
+#              "features": {
+#                "containerd-snapshotter": true
+#              }
+#            }
+#
+#      - name: Login to GitHub Container Registry
+#        uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
+#        with:
+#          registry: ghcr.io
+#          username: ${{ github.actor }}
+#          password: ${{ secrets.GITHUB_TOKEN }}
+#
+#      - name: Set up QEMU
+#        uses: docker/setup-qemu-action@53851d14592bedcffcf25ea515637cff71ef929a # v3.3.0
+#
+#      - name: Set up Docker Buildx
+#        uses: docker/setup-buildx-action@6524bf65af31da8d45b59e8c27de4bd072b392f5 # v3.8.0
+#
+#      - name: Build and push
+#        uses: docker/build-push-action@67a2d409c0a876cbe6b11854e3e25193efe4e62d # v6.12.0
+#        with:
+#          context: .
+#          file: ./docker/production/Dockerfile
+#          push: true
+#          tags: ghcr.io/${{ github.repository }}:${{ matrix.shopware_version }}_${{ matrix.locale }}_${{ matrix.currency }}
+#          platforms: linux/amd64,linux/arm64
+#          build-args: |
+#            PHP_VERSION=${{ matrix.php_version }}
+#            SHOPWARE_VERSION=${{ matrix.shopware_version }}
+#            LOCALE=${{ matrix.locale }}
+#            CURRENCY=${{ matrix.currency }}
+
+  merge-shopware-runner-builds:
+    needs: build-shopware-runner
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      matrix:
+        shopware_version_php_version:
+          - { shopware_version: '6.5.4.1', php_version: '8.2.27' }
+          - { shopware_version: '6.5.5.0', php_version: '8.2.27' }
+        locale: [ 'de-DE', 'en-GB' ]
+        currency: [ 'EUR' ]
+    env:
+      SHOPWARE_VERSION: ${{ matrix.shopware_version_php_version.shopware_version }}
+      LOCALE: ${{ matrix.locale }}
+      CURRENCY: ${{ matrix.currency }}
+    steps:
+      - name: Download digests
+        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8
+        with:
+          pattern: shopware_${{ env.SHOPWARE_VERSION }}_${{ env.LOCALE }}_${{ env.CURRENCY }}_*-digests
+          merge-multiple: true
+          path: /tmp/digests/shopware_${{ env.SHOPWARE_VERSION }}_${{ env.LOCALE }}_${{ env.CURRENCY }}
+
       - name: Set up Docker
         uses: docker/setup-docker-action@370a7dad4b8ce8dbf00f9363e1652e5074dd6abe # v4.1.0
-        with:
-          daemon-config: |
-            {
-              "debug": true,
-              "features": {
-                "containerd-snapshotter": true
-              }
-            }
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
@@ -284,22 +502,51 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@53851d14592bedcffcf25ea515637cff71ef929a # v3.3.0
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@6524bf65af31da8d45b59e8c27de4bd072b392f5 # v3.8.0
 
-      - name: Build and push
-        uses: docker/build-push-action@67a2d409c0a876cbe6b11854e3e25193efe4e62d # v6.12.0
+      - name: Create manifest list and push
+        working-directory: /tmp/digests/shopware_${{ env.SHOPWARE_VERSION }}_${{ env.LOCALE }}_${{ env.CURRENCY }}
+        run: |
+          docker buildx imagetools create --tag ghcr.io/${{ github.repository }}:${{ env.SHOPWARE_VERSION }}_${{ env.LOCALE }}_${{ env.CURRENCY }} \
+            $(printf 'ghcr.io/${{ github.repository }}@sha256:%s ' *)
+
+      - name: Inspect image
+        run: |
+          docker buildx imagetools inspect 'ghcr.io/${{ github.repository }}:${{ env.SHOPWARE_VERSION }}_${{ env.LOCALE }}_${{ env.CURRENCY }}'
+
+  delete-amd64-runner:
+    name: Delete Hetzner Cloud runner
+    needs:
+      - create-amd64-runner
+      - create-arm64-runner
+      - build-shopware-runner
+    runs-on: ubuntu-24.04
+    if: ${{ always() }}
+    steps:
+      - name: Delete runner
+        uses: Cyclenerd/hcloud-github-runner@v1
         with:
-          context: .
-          file: ./docker/production/Dockerfile
-          push: true
-          tags: ghcr.io/${{ github.repository }}:${{ matrix.shopware_version }}_${{ matrix.locale }}_${{ matrix.currency }}
-          platforms: linux/amd64,linux/arm64
-          build-args: |
-            PHP_VERSION=${{ matrix.php_version }}
-            SHOPWARE_VERSION=${{ matrix.shopware_version }}
-            LOCALE=${{ matrix.locale }}
-            CURRENCY=${{ matrix.currency }}
+          mode: delete
+          github_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          hcloud_token: ${{ secrets.HCLOUD_TOKEN }}
+          name: ${{ needs.create-amd64-runner.outputs.label }}
+          server_id: ${{ needs.create-amd64-runner.outputs.server_id }}
+
+  delete-ard64-runner:
+    name: Delete Hetzner Cloud runner
+    needs:
+      - create-amd64-runner
+      - create-arm64-runner
+      - build-shopware-runner
+    runs-on: ubuntu-24.04
+    if: ${{ always() }}
+    steps:
+      - name: Delete runner
+        uses: Cyclenerd/hcloud-github-runner@v1
+        with:
+          mode: delete
+          github_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          hcloud_token: ${{ secrets.HCLOUD_TOKEN }}
+          name: ${{ needs.create-arm64-runner.outputs.label }}
+          server_id: ${{ needs.create-arm64-runner.outputs.server_id }}
