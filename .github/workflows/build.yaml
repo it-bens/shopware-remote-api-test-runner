@@ -40,6 +40,42 @@ jobs:
           server_type: cpx21
           image: 213294353
 
+  create-amd64-runner-3:
+    name: Create Hetzner Cloud runner for AMD64
+    runs-on: ubuntu-24.04
+    outputs:
+      label: ${{ steps.create-hcloud-runner.outputs.label }}
+      server_id: ${{ steps.create-hcloud-runner.outputs.server_id }}
+    steps:
+      - name: Create runner
+        id: create-hcloud-runner
+        uses: Cyclenerd/hcloud-github-runner@v1
+        with:
+          mode: create
+          github_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          hcloud_token: ${{ secrets.HCLOUD_TOKEN }}
+          location: hel1
+          server_type: cpx21
+          image: 213294353
+
+  create-amd64-runner-4:
+    name: Create Hetzner Cloud runner for AMD64
+    runs-on: ubuntu-24.04
+    outputs:
+      label: ${{ steps.create-hcloud-runner.outputs.label }}
+      server_id: ${{ steps.create-hcloud-runner.outputs.server_id }}
+    steps:
+      - name: Create runner
+        id: create-hcloud-runner
+        uses: Cyclenerd/hcloud-github-runner@v1
+        with:
+          mode: create
+          github_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          hcloud_token: ${{ secrets.HCLOUD_TOKEN }}
+          location: hel1
+          server_type: cpx21
+          image: 213294353
+
   create-arm64-runner-1:
     name: Create Hetzner Cloud runner for ARM64
     runs-on: ubuntu-24.04
@@ -76,14 +112,54 @@ jobs:
           server_type: cax21
           image: 213294397
 
+  create-arm64-runner-3:
+    name: Create Hetzner Cloud runner for ARM64
+    runs-on: ubuntu-24.04
+    outputs:
+      label: ${{ steps.create-hcloud-runner.outputs.label }}
+      server_id: ${{ steps.create-hcloud-runner.outputs.server_id }}
+    steps:
+      - name: Create runner
+        id: create-hcloud-runner
+        uses: Cyclenerd/hcloud-github-runner@v1
+        with:
+          mode: create
+          github_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          hcloud_token: ${{ secrets.HCLOUD_TOKEN }}
+          location: hel1
+          server_type: cax21
+          image: 213294397
+
+  create-arm64-runner-4:
+    name: Create Hetzner Cloud runner for ARM64
+    runs-on: ubuntu-24.04
+    outputs:
+      label: ${{ steps.create-hcloud-runner.outputs.label }}
+      server_id: ${{ steps.create-hcloud-runner.outputs.server_id }}
+    steps:
+      - name: Create runner
+        id: create-hcloud-runner
+        uses: Cyclenerd/hcloud-github-runner@v1
+        with:
+          mode: create
+          github_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          hcloud_token: ${{ secrets.HCLOUD_TOKEN }}
+          location: hel1
+          server_type: cax21
+          image: 213294397
+
   label-runners:
     name: Label Hetzner Cloud runners
     runs-on: ubuntu-24.04
     needs:
       - create-amd64-runner-1
       - create-amd64-runner-2
+      - create-amd64-runner-3
+      - create-amd64-runner-4
       - create-arm64-runner-1
       - create-arm64-runner-2
+      - create-arm64-runner-3
+      - create-arm64-runner-4
     strategy:
       matrix:
         include:
@@ -91,9 +167,17 @@ jobs:
             label: 'amd64'
           - runner_name: ${{ needs.create-amd64-runner-2.outputs.label }}
             label: 'amd64'
+          - runner_name: ${{ needs.create-amd64-runner-3.outputs.label }}
+            label: 'amd64'
+          - runner_name: ${{ needs.create-amd64-runner-4.outputs.label }}
+            label: 'amd64'
           - runner_name: ${{ needs.create-arm64-runner-1.outputs.label }}
             label: 'arm64'
           - runner_name: ${{ needs.create-arm64-runner-2.outputs.label }}
+            label: 'arm64'
+          - runner_name: ${{ needs.create-arm64-runner-3.outputs.label }}
+            label: 'arm64'
+          - runner_name: ${{ needs.create-arm64-runner-4.outputs.label }}
             label: 'arm64'
     steps:
       - name: Set variables
@@ -586,8 +670,12 @@ jobs:
     needs:
       - create-amd64-runner-1
       - create-amd64-runner-2
+      - create-amd64-runner-3
+      - create-amd64-runner-4
       - create-arm64-runner-1
       - create-arm64-runner-2
+      - create-arm64-runner-3
+      - create-arm64-runner-4
       - build-shopware-runner
     runs-on: ubuntu-24.04
     if: ${{ always() }}
@@ -598,10 +686,18 @@ jobs:
             server_id: ${{ needs.create-amd64-runner-1.outputs.server_id }}
           - name: ${{ needs.create-amd64-runner-2.outputs.label }}
             server_id: ${{ needs.create-amd64-runner-2.outputs.server_id }}
+          - name: ${{ needs.create-amd64-runner-3.outputs.label }}
+            server_id: ${{ needs.create-amd64-runner-3.outputs.server_id }}
+          - name: ${{ needs.create-amd64-runner-4.outputs.label }}
+            server_id: ${{ needs.create-amd64-runner-4.outputs.server_id }}
           - name: ${{ needs.create-arm64-runner-1.outputs.label }}
             server_id: ${{ needs.create-arm64-runner-1.outputs.server_id }}
           - name: ${{ needs.create-arm64-runner-2.outputs.label }}
             server_id: ${{ needs.create-arm64-runner-2.outputs.server_id }}
+          - name: ${{ needs.create-arm64-runner-3.outputs.label }}
+            server_id: ${{ needs.create-arm64-runner-3.outputs.server_id }}
+          - name: ${{ needs.create-arm64-runner-4.outputs.label }}
+            server_id: ${{ needs.create-arm64-runner-4.outputs.server_id }}
     steps:
       - name: Delete runner
         uses: Cyclenerd/hcloud-github-runner@v1
