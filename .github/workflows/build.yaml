@@ -20,7 +20,7 @@ jobs:
           hcloud_token: ${{ secrets.HCLOUD_TOKEN }}
           location: hel1
           server_type: cpx21
-          image: docker-ce
+          image: 213294353
 
   create-amd64-runner-2:
     name: Create Hetzner Cloud runner for AMD64
@@ -38,7 +38,7 @@ jobs:
           hcloud_token: ${{ secrets.HCLOUD_TOKEN }}
           location: hel1
           server_type: cpx21
-          image: docker-ce
+          image: 213294353
 
   create-arm64-runner-1:
     name: Create Hetzner Cloud runner for ARM64
@@ -56,7 +56,7 @@ jobs:
           hcloud_token: ${{ secrets.HCLOUD_TOKEN }}
           location: hel1
           server_type: cax21
-          image: docker-ce
+          image: 213294397
 
   create-arm64-runner-2:
     name: Create Hetzner Cloud runner for ARM64
@@ -74,7 +74,7 @@ jobs:
           hcloud_token: ${{ secrets.HCLOUD_TOKEN }}
           location: hel1
           server_type: cax21
-          image: docker-ce
+          image: 213294397
 
   label-runners:
     name: Label Hetzner Cloud runners
@@ -170,8 +170,6 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@6524bf65af31da8d45b59e8c27de4bd072b392f5 # v3.8.0
       - name: Build and push by digest
         id: build
         uses: docker/build-push-action@67a2d409c0a876cbe6b11854e3e25193efe4e62d # v6.12.0
@@ -231,8 +229,6 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@6524bf65af31da8d45b59e8c27de4bd072b392f5 # v3.8.0
       - name: Build and push by digest
         id: build
         uses: docker/build-push-action@67a2d409c0a876cbe6b11854e3e25193efe4e62d # v6.12.0
@@ -282,6 +278,17 @@ jobs:
           path: /tmp/digests/helper_satis_builder_${{ matrix.php_version }}
       - name: Set up Docker
         uses: docker/setup-docker-action@370a7dad4b8ce8dbf00f9363e1652e5074dd6abe # v4.1.0
+        with:
+          daemon-config: |
+            {
+              "debug": false,
+              "features": {
+                "containerd-snapshotter": true
+              },
+              "registry-mirrors": ["https://mirror.gcr.io"]
+            }
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@6524bf65af31da8d45b59e8c27de4bd072b392f5 # v3.8.0
       - name: Login to GitHub Container Registry
         uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
         with:
@@ -293,8 +300,6 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@6524bf65af31da8d45b59e8c27de4bd072b392f5 # v3.8.0
       - name: Create manifest list and push
         working-directory: /tmp/digests/helper_satis_builder_${{ matrix.php_version }}
         run: |
@@ -324,6 +329,17 @@ jobs:
           path: /tmp/digests/base_${{ matrix.php_version }}
       - name: Set up Docker
         uses: docker/setup-docker-action@370a7dad4b8ce8dbf00f9363e1652e5074dd6abe # v4.1.0
+        with:
+          daemon-config: |
+            {
+              "debug": false,
+              "features": {
+                "containerd-snapshotter": true
+              },
+              "registry-mirrors": ["https://mirror.gcr.io"]
+            }
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@6524bf65af31da8d45b59e8c27de4bd072b392f5 # v3.8.0
       - name: Login to GitHub Container Registry
         uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
         with:
@@ -335,8 +351,6 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@6524bf65af31da8d45b59e8c27de4bd072b392f5 # v3.8.0
       - name: Create manifest list and push
         working-directory: /tmp/digests/base_${{ matrix.php_version }}
         run: |
@@ -430,8 +444,6 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@6524bf65af31da8d45b59e8c27de4bd072b392f5 # v3.8.0
       - name: Build and push by digest
         id: build
         uses: docker/build-push-action@67a2d409c0a876cbe6b11854e3e25193efe4e62d # v6.12.0
@@ -538,6 +550,17 @@ jobs:
           path: /tmp/digests/shopware_${{ env.SHOPWARE_VERSION }}_${{ env.LOCALE }}_${{ env.CURRENCY }}
       - name: Set up Docker
         uses: docker/setup-docker-action@370a7dad4b8ce8dbf00f9363e1652e5074dd6abe # v4.1.0
+        with:
+          daemon-config: |
+            {
+              "debug": false,
+              "features": {
+                "containerd-snapshotter": true
+              },
+              "registry-mirrors": ["https://mirror.gcr.io"]
+            }
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@6524bf65af31da8d45b59e8c27de4bd072b392f5 # v3.8.0
       - name: Login to GitHub Container Registry
         uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
         with:
@@ -549,8 +572,6 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@6524bf65af31da8d45b59e8c27de4bd072b392f5 # v3.8.0
       - name: Create manifest list and push
         working-directory: /tmp/digests/shopware_${{ env.SHOPWARE_VERSION }}_${{ env.LOCALE }}_${{ env.CURRENCY }}
         run: |
