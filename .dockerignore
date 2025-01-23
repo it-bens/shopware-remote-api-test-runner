@@ -1,1 +1,6 @@
-/.env.test
+/.github
+/.gitignore
+/.docker-compose.yaml
+/LICENSE
+/README.md
+/renovate.json
