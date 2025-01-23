@@ -159,23 +159,19 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-
       - name: Login to GitHub Container Registry
         uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Login to DockerHub
         uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@6524bf65af31da8d45b59e8c27de4bd072b392f5 # v3.8.0
-
       - name: Build and push by digest
         id: build
         uses: docker/build-push-action@67a2d409c0a876cbe6b11854e3e25193efe4e62d # v6.12.0
@@ -189,13 +185,11 @@ jobs:
             type=image,name=ghcr.io/${{ github.repository }},push-by-digest=true,name-canonical=true,push=true
           build-args: |
             PHP_VERSION=${{ matrix.php_version }}
-
       - name: Export digest
         run: |
           mkdir -p /tmp/digests/helper_satis_builder_${{ matrix.php_version }}
           digest="${{ steps.build.outputs.digest }}"
           touch "/tmp/digests/helper_satis_builder_${{ matrix.php_version }}/${digest#sha256:}"
-
       - name: Upload digest
         uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         with:
@@ -203,7 +197,6 @@ jobs:
           path: /tmp/digests/helper_satis_builder_${{ matrix.php_version }}/*
           if-no-files-found: error
           retention-days: 1
-
       - name: Clear digest
         run: |
           rm -rf /tmp/digests/helper_satis_builder_${{ matrix.php_version }}
@@ -227,23 +220,19 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-
       - name: Login to GitHub Container Registry
         uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Login to DockerHub
         uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@6524bf65af31da8d45b59e8c27de4bd072b392f5 # v3.8.0
-
       - name: Build and push by digest
         id: build
         uses: docker/build-push-action@67a2d409c0a876cbe6b11854e3e25193efe4e62d # v6.12.0
@@ -257,13 +246,11 @@ jobs:
             type=image,name=ghcr.io/${{ github.repository }},push-by-digest=true,name-canonical=true,push=true
           build-args: |
             PHP_VERSION=${{ matrix.php_version }}
-
       - name: Export digest
         run: |
           mkdir -p /tmp/digests/base_${{ matrix.php_version }}
           digest="${{ steps.build.outputs.digest }}"
           touch "/tmp/digests/base_${{ matrix.php_version }}/${digest#sha256:}"
-
       - name: Upload digest
         uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         with:
@@ -271,7 +258,6 @@ jobs:
           path: /tmp/digests/base_${{ matrix.php_version }}/*
           if-no-files-found: error
           retention-days: 1
-
       - name: Clear digest
         run: |
           rm -rf /tmp/digests/base_${{ matrix.php_version }}
@@ -294,32 +280,26 @@ jobs:
           pattern: helper_satis_builder_${{ matrix.php_version }}_*-digests
           merge-multiple: true
           path: /tmp/digests/helper_satis_builder_${{ matrix.php_version }}
-
       - name: Set up Docker
         uses: docker/setup-docker-action@370a7dad4b8ce8dbf00f9363e1652e5074dd6abe # v4.1.0
-
       - name: Login to GitHub Container Registry
         uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Login to DockerHub
         uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@6524bf65af31da8d45b59e8c27de4bd072b392f5 # v3.8.0
-
       - name: Create manifest list and push
         working-directory: /tmp/digests/helper_satis_builder_${{ matrix.php_version }}
         run: |
           docker buildx imagetools create --tag ghcr.io/${{ github.repository }}:helper_satis_builder_${{ matrix.php_version }} \
             $(printf 'ghcr.io/${{ github.repository }}@sha256:%s ' *)
-
       - name: Inspect image
         run: |
           docker buildx imagetools inspect 'ghcr.io/${{ github.repository }}:helper_satis_builder_${{ matrix.php_version }}'
@@ -342,32 +322,26 @@ jobs:
           pattern: base_${{ matrix.php_version }}_*-digests
           merge-multiple: true
           path: /tmp/digests/base_${{ matrix.php_version }}
-
       - name: Set up Docker
         uses: docker/setup-docker-action@370a7dad4b8ce8dbf00f9363e1652e5074dd6abe # v4.1.0
-
       - name: Login to GitHub Container Registry
         uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Login to DockerHub
         uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@6524bf65af31da8d45b59e8c27de4bd072b392f5 # v3.8.0
-
       - name: Create manifest list and push
         working-directory: /tmp/digests/base_${{ matrix.php_version }}
         run: |
           docker buildx imagetools create --tag ghcr.io/${{ github.repository }}:base_${{ matrix.php_version }} \
             $(printf 'ghcr.io/${{ github.repository }}@sha256:%s ' *)
-
       - name: Inspect image
         run: |
           docker buildx imagetools inspect 'ghcr.io/${{ github.repository }}:base_${{ matrix.php_version }}'
@@ -382,14 +356,14 @@ jobs:
           - 'amd64'
           - 'arm64'
         shopware_version_php_version:
-#          - { shopware_version: '6.5.4.0', php_version: '8.2.27' } (Migration error: An exception occurred while executing a query: SQLSTATE[HY000]: General error: 1901 Function or expression 'variant_listing_config' cannot be used in the CHECK clause of `variant_listing_config)
+          # - { shopware_version: '6.5.4.0', php_version: '8.2.27' } (Migration error: An exception occurred while executing a query: SQLSTATE[HY000]: General error: 1901 Function or expression 'variant_listing_config' cannot be used in the CHECK clause of `variant_listing_config)
           - { shopware_version: '6.5.4.1', php_version: '8.2.27' }
           - { shopware_version: '6.5.5.0', php_version: '8.2.27' }
           - { shopware_version: '6.5.5.1', php_version: '8.2.27' }
           - { shopware_version: '6.5.5.2', php_version: '8.2.27' }
           - { shopware_version: '6.5.6.0', php_version: '8.2.27' }
           - { shopware_version: '6.5.6.1', php_version: '8.2.27' }
-#          - { shopware_version: '6.5.7.0', php_version: '8.2.27' } (Fatal error: Uncaught Error: Class "Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Version\CalculatedPriceFieldTestDefinition" not found in /opt/shopware-remote-api-test-runner/vendor/shopware/platform/src/Core/Framework/DependencyInjection/CompilerPass/EntityCompilerPass.php:50)
+          # - { shopware_version: '6.5.7.0', php_version: '8.2.27' } (Fatal error: Uncaught Error: Class "Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Version\CalculatedPriceFieldTestDefinition" not found in /opt/shopware-remote-api-test-runner/vendor/shopware/platform/src/Core/Framework/DependencyInjection/CompilerPass/EntityCompilerPass.php:50)
           - { shopware_version: '6.5.7.1', php_version: '8.2.27' }
           - { shopware_version: '6.5.7.2', php_version: '8.2.27' }
           - { shopware_version: '6.5.7.3', php_version: '8.2.27' }
@@ -445,23 +419,19 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-
       - name: Login to GitHub Container Registry
         uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Login to DockerHub
         uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@6524bf65af31da8d45b59e8c27de4bd072b392f5 # v3.8.0
-
       - name: Build and push by digest
         id: build
         uses: docker/build-push-action@67a2d409c0a876cbe6b11854e3e25193efe4e62d # v6.12.0
@@ -478,13 +448,11 @@ jobs:
             SHOPWARE_VERSION=${{ env.SHOPWARE_VERSION }}
             LOCALE=${{ env.LOCALE }}
             CURRENCY=${{ env.CURRENCY }}
-
       - name: Export digest
         run: |
           mkdir -p /tmp/digests/shopware_${{ env.SHOPWARE_VERSION }}_${{ env.LOCALE }}_${{ env.CURRENCY }}
           digest="${{ steps.build.outputs.digest }}"
           touch "/tmp/digests/shopware_${{ env.SHOPWARE_VERSION }}_${{ env.LOCALE }}_${{ env.CURRENCY }}/${digest#sha256:}"
-
       - name: Upload digest
         uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         with:
@@ -492,51 +460,9 @@ jobs:
           path: /tmp/digests/shopware_${{ env.SHOPWARE_VERSION }}_${{ env.LOCALE }}_${{ env.CURRENCY }}/*
           if-no-files-found: error
           retention-days: 1
-
       - name: Clear digest
         run: |
           rm -rf /tmp/digests/shopware_${{ env.SHOPWARE_VERSION }}_${{ env.LOCALE }}_${{ env.CURRENCY }}
-#    steps:
-#      - name: Check out code
-#        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-#
-#      - name: Set up Docker
-#        uses: docker/setup-docker-action@370a7dad4b8ce8dbf00f9363e1652e5074dd6abe # v4.1.0
-#        with:
-#          daemon-config: |
-#            {
-#              "debug": true,
-#              "features": {
-#                "containerd-snapshotter": true
-#              }
-#            }
-#
-#      - name: Login to GitHub Container Registry
-#        uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
-#        with:
-#          registry: ghcr.io
-#          username: ${{ github.actor }}
-#          password: ${{ secrets.GITHUB_TOKEN }}
-#
-#      - name: Set up QEMU
-#        uses: docker/setup-qemu-action@53851d14592bedcffcf25ea515637cff71ef929a # v3.3.0
-#
-#      - name: Set up Docker Buildx
-#        uses: docker/setup-buildx-action@6524bf65af31da8d45b59e8c27de4bd072b392f5 # v3.8.0
-#
-#      - name: Build and push
-#        uses: docker/build-push-action@67a2d409c0a876cbe6b11854e3e25193efe4e62d # v6.12.0
-#        with:
-#          context: .
-#          file: ./docker/production/Dockerfile
-#          push: true
-#          tags: ghcr.io/${{ github.repository }}:${{ matrix.shopware_version }}_${{ matrix.locale }}_${{ matrix.currency }}
-#          platforms: linux/amd64,linux/arm64
-#          build-args: |
-#            PHP_VERSION=${{ matrix.php_version }}
-#            SHOPWARE_VERSION=${{ matrix.shopware_version }}
-#            LOCALE=${{ matrix.locale }}
-#            CURRENCY=${{ matrix.currency }}
 
   merge-shopware-runner-builds:
     needs: build-shopware-runner
@@ -547,14 +473,14 @@ jobs:
     strategy:
       matrix:
         shopware_version_php_version:
-#          - { shopware_version: '6.5.4.0', php_version: '8.2.27' } (Migration error: An exception occurred while executing a query: SQLSTATE[HY000]: General error: 1901 Function or expression 'variant_listing_config' cannot be used in the CHECK clause of `variant_listing_config)
+          # - { shopware_version: '6.5.4.0', php_version: '8.2.27' } (Migration error: An exception occurred while executing a query: SQLSTATE[HY000]: General error: 1901 Function or expression 'variant_listing_config' cannot be used in the CHECK clause of `variant_listing_config)
           - { shopware_version: '6.5.4.1', php_version: '8.2.27' }
           - { shopware_version: '6.5.5.0', php_version: '8.2.27' }
           - { shopware_version: '6.5.5.1', php_version: '8.2.27' }
           - { shopware_version: '6.5.5.2', php_version: '8.2.27' }
           - { shopware_version: '6.5.6.0', php_version: '8.2.27' }
           - { shopware_version: '6.5.6.1', php_version: '8.2.27' }
-#          - { shopware_version: '6.5.7.0', php_version: '8.2.27' } (Fatal error: Uncaught Error: Class "Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Version\CalculatedPriceFieldTestDefinition" not found in /opt/shopware-remote-api-test-runner/vendor/shopware/platform/src/Core/Framework/DependencyInjection/CompilerPass/EntityCompilerPass.php:50)
+          # - { shopware_version: '6.5.7.0', php_version: '8.2.27' } (Fatal error: Uncaught Error: Class "Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Version\CalculatedPriceFieldTestDefinition" not found in /opt/shopware-remote-api-test-runner/vendor/shopware/platform/src/Core/Framework/DependencyInjection/CompilerPass/EntityCompilerPass.php:50)
           - { shopware_version: '6.5.7.1', php_version: '8.2.27' }
           - { shopware_version: '6.5.7.2', php_version: '8.2.27' }
           - { shopware_version: '6.5.7.3', php_version: '8.2.27' }
@@ -610,32 +536,26 @@ jobs:
           pattern: shopware_${{ env.SHOPWARE_VERSION }}_${{ env.LOCALE }}_${{ env.CURRENCY }}_*-digests
           merge-multiple: true
           path: /tmp/digests/shopware_${{ env.SHOPWARE_VERSION }}_${{ env.LOCALE }}_${{ env.CURRENCY }}
-
       - name: Set up Docker
         uses: docker/setup-docker-action@370a7dad4b8ce8dbf00f9363e1652e5074dd6abe # v4.1.0
-
       - name: Login to GitHub Container Registry
         uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Login to DockerHub
         uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@6524bf65af31da8d45b59e8c27de4bd072b392f5 # v3.8.0
-
       - name: Create manifest list and push
         working-directory: /tmp/digests/shopware_${{ env.SHOPWARE_VERSION }}_${{ env.LOCALE }}_${{ env.CURRENCY }}
         run: |
           docker buildx imagetools create --tag ghcr.io/${{ github.repository }}:${{ env.SHOPWARE_VERSION }}_${{ env.LOCALE }}_${{ env.CURRENCY }} \
             $(printf 'ghcr.io/${{ github.repository }}@sha256:%s ' *)
-
       - name: Inspect image
         run: |
           docker buildx imagetools inspect 'ghcr.io/${{ github.repository }}:${{ env.SHOPWARE_VERSION }}_${{ env.LOCALE }}_${{ env.CURRENCY }}'
