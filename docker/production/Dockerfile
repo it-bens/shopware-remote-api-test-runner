@@ -2,10 +2,11 @@
 
 ARG PHP_VERSION=8.2
 
-FROM php:$PHP_VERSION-apache-bookworm AS php_webserver_upstream
+FROM ghcr.io/it-bens/shopware-remote-api-test-runner:base_$PHP_VERSION AS php_webserver_upstream
+FROM ghcr.io/it-bens/shopware-remote-api-test-runner:helper_satis_builder_$PHP_VERSION AS satis_upstream
 FROM php:$PHP_VERSION-cli-bookworm AS php_cli_upstream
-FROM composer/composer:2-bin AS composer_upstream
-FROM mlocati/php-extension-installer:2 AS php_extension_installer_upstream
+FROM ghcr.io/composer/docker:2-bin AS composer_upstream
+FROM ghcr.io/mlocati/php-extension-installer:2 AS php_extension_installer_upstream
 
 FROM php_cli_upstream AS project_builder
 
@@ -29,7 +30,7 @@ ENV COMPOSER_ALLOW_SUPERUSER=1 \
     PATH="${PATH}:/root/.composer/vendor/bin"
 
 # Install Composer
-COPY --from=composer_upstream --link /composer /usr/bin/composer
+COPY --from=composer_upstream /composer /usr/bin/composer
 
 # copy code
 ADD ./code/ /var/www/html
@@ -51,31 +52,7 @@ RUN composer update --no-cache --prefer-dist --no-scripts --no-interaction --ign
     docker-compose.yml \
     docker
 
-FROM php_cli_upstream AS project_builder_satis
-
-# install dependencies
-RUN set -ex; \
-    apt-get update && \
-    apt-get -y --no-install-recommends install \
-    $PHPIZE_DEPS \
-    git \
-    unzip && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-
-# php extensions installer: https://github.com/mlocati/docker-php-extension-installer
-COPY --from=php_extension_installer_upstream --link /usr/bin/install-php-extensions /usr/local/bin/
-RUN install-php-extensions \
-    ctype \
-    iconv \
-    zip
-
-# Set environment variables for Composer
-ENV COMPOSER_ALLOW_SUPERUSER=1 \
-    PATH="${PATH}:/root/.composer/vendor/bin"
-
-# Install Composer
-COPY --from=composer_upstream --link /composer /usr/bin/composer
+FROM satis_upstream AS project_builder_satis
 
 RUN mkdir -p /opt && \
     cd /opt && \
@@ -112,40 +89,12 @@ LABEL org.opencontainers.image.authors="Martin Bens <martin.bens@it-bens.de>" \
       php.version=$PHP_VERSION \
       mariadb.version=11.4.4
 
-## add MariaDB repository for more recent versions
-RUN mkdir -p /etc/apt/keyrings && \
-    curl -o /etc/apt/keyrings/mariadb-keyring.pgp 'https://mariadb.org/mariadb_release_signing_key.pgp'
-ADD docker/production/mariadb.sources /etc/apt/sources.list.d/mariadb.sources
-
-# install dependencies
-RUN set -ex; \
-    apt-get update && \
-    apt-get -y --no-install-recommends install \
-    git \
-    gnupg \
-    apt-transport-https \
-    lsb-release \
-    sudo \
-    wget \
-    zip && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-
-# php extensions installer: https://github.com/mlocati/docker-php-extension-installer
-COPY --from=php_extension_installer_upstream --link /usr/bin/install-php-extensions /usr/local/bin/
-RUN install-php-extensions \
-    apcu \
-    gd \
-    intl \
-    pdo_mysql \
-    zip
-
 # Set environment variables for Composer
 ENV COMPOSER_ALLOW_SUPERUSER=1 \
     PATH="${PATH}:/root/.composer/vendor/bin"
 
 # Install Composer (required for installing Shopware plugins)
-COPY --from=composer_upstream --link /composer /usr/bin/composer
+COPY --from=composer_upstream /composer /usr/bin/composer
 
 # install MariaDB server
 RUN /bin/sh -c echo debconf mysql-server/root_password password root | debconf-set-selections && \
@@ -177,7 +126,7 @@ EXPOSE 80
 # Port 8090 for Satis must not be exposed.
 
 # copy shopware remote api test runner code
-COPY --from=project_builder --link --chown=www-data:www-data /var/www/html /opt/shopware-remote-api-test-runner
+COPY --from=project_builder --chown=www-data:www-data /var/www/html /opt/shopware-remote-api-test-runner
 RUN touch /opt/shopware-remote-api-test-runner/.env && \
     echo "APP_ENV=\"$APP_ENV\"" >> /opt/shopware-remote-api-test-runner/.env && \
     echo "APP_DEBUG=\"$APP_DEBUG\"" >> /opt/shopware-remote-api-test-runner/.env && \
@@ -203,7 +152,7 @@ RUN sudo -u www-data sed -i "/^];/i\    Shopware\\\Administration\\\Administrati
 RUN cp /opt/shopware-remote-api-test-runner/vendor/shopware/platform/bin/shopware /opt/shopware-remote-api-test-runner/bin/console
 
 # copy satis code
-COPY --from=project_builder_satis --link --chown=www-data:www-data /opt/satis /opt/satis
+COPY --from=project_builder_satis --chown=www-data:www-data /opt/satis /opt/satis
 
 # create static files directory
 RUN mkdir -p /opt/static && \
