@@ -33,3 +33,6 @@ RUN install-php-extensions \
     intl \
     pdo_mysql \
     zip
+
+# Add disable_warnings.ini to the PHP conf.d folder
+COPY docker/production-base/php/disable_warnings.ini /usr/local/etc/php/conf.d/

@@ -29,6 +29,14 @@ if ! wait_for_mariadb; then
     exit 1
 fi
 
+# Conditionally remove disable_warnings.ini from the PHP conf.d folder
+if [ "${DISABLE_WARNINGS:-true}" = "false" ]; then
+    echo "DISABLE_WARNINGS is set to false. PHP warnings are enabled."
+    rm -f /usr/local/etc/php/conf.d/disable_warnings.ini
+else
+    echo "DISABLE_WARNINGS is true or not set. PHP warnings are disabled."
+fi
+
 # Optionally, run any additional setup or migrations here
 
 # Start Apache in the foreground

@@ -217,6 +217,21 @@ composer config secure-http false
 
 After that, it's the usual install/activation process of Shopware. But there is one last point: if the plugin is modifying the database, a new database backup has to be created and the old ones have to be deleted.
 
+#### Warnings and Deprecations
+
+There are several reasons why Shopware plugins cause PHP warnings and deprecations. If the plugin is somehow use (direct or indirect) during an API call, the API call would normally just contains the warning/deprecation message. This is usually disabled in a production environment.
+
+If could come in handy to disable this warning/deprecation suppression in order to see the actual problems and tackle them. That's why this image supports the `DISABLE_WARNINGS` environment variable at the container startup.
+
+```yaml
+e2e-test-shopware:
+  image: ghcr.io/it-bens/shopware-remote-api-test-runner:6.5.6.1_de-DE_EUR
+  extra_hosts:
+    - host.docker.internal:host-gateway
+  environment:
+    DISABLE_WARNINGS: false
+```
+
 ### Static file serving
 
 Shopware allows the upload of images and other static files via Admin/Action API. If the image upload should be tested with this image, access to the image via URL is necessary. Because a test-image shouldn't require access to the internet, the images of this project contain the ability to serve static files via port `8100`. The files have to be placed in the `/opt/static` directory. The usage in a derived image could look like this:
