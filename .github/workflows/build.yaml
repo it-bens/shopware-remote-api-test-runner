@@ -482,6 +482,7 @@ jobs:
           - { shopware_version: '6.5.8.13', php_version: '8.3.16' }
           - { shopware_version: '6.5.8.14', php_version: '8.3.16' }
           - { shopware_version: '6.5.8.15', php_version: '8.3.16' }
+          - { shopware_version: '6.5.8.16', php_version: '8.3.16' }
           - { shopware_version: '6.6.0.0', php_version: '8.3.16' }
           - { shopware_version: '6.6.0.1', php_version: '8.3.16' }
           - { shopware_version: '6.6.0.2', php_version: '8.3.16' }
@@ -597,6 +598,7 @@ jobs:
           - { shopware_version: '6.5.8.13', php_version: '8.3.16' }
           - { shopware_version: '6.5.8.14', php_version: '8.3.16' }
           - { shopware_version: '6.5.8.15', php_version: '8.3.16' }
+          - { shopware_version: '6.5.8.16', php_version: '8.3.16' }
           - { shopware_version: '6.6.0.0', php_version: '8.3.16' }
           - { shopware_version: '6.6.0.1', php_version: '8.3.16' }
           - { shopware_version: '6.6.0.2', php_version: '8.3.16' }
