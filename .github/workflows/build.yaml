@@ -232,11 +232,11 @@ jobs:
           - platform: 'amd64'
             php_version: '8.2.27'
           - platform: 'amd64'
-            php_version: '8.3.16'
+            php_version: '8.3.17'
           - platform: 'arm64'
             php_version: '8.2.27'
           - platform: 'arm64'
-            php_version: '8.3.16'
+            php_version: '8.3.17'
     runs-on:
       - 'hetzner'
       - ${{ matrix.platform }}
@@ -291,11 +291,11 @@ jobs:
           - platform: 'amd64'
             php_version: '8.2.27'
           - platform: 'amd64'
-            php_version: '8.3.16'
+            php_version: '8.3.17'
           - platform: 'arm64'
             php_version: '8.2.27'
           - platform: 'arm64'
-            php_version: '8.3.16'
+            php_version: '8.3.17'
     runs-on:
       - 'hetzner'
       - ${{ matrix.platform }}
@@ -466,45 +466,45 @@ jobs:
           - { shopware_version: '6.5.7.2', php_version: '8.2.27' }
           - { shopware_version: '6.5.7.3', php_version: '8.2.27' }
           - { shopware_version: '6.5.7.4', php_version: '8.2.27' }
-          - { shopware_version: '6.5.8.0', php_version: '8.3.16' }
-          - { shopware_version: '6.5.8.1', php_version: '8.3.16' }
-          - { shopware_version: '6.5.8.2', php_version: '8.3.16' }
-          - { shopware_version: '6.5.8.3', php_version: '8.3.16' }
-          - { shopware_version: '6.5.8.4', php_version: '8.3.16' }
-          - { shopware_version: '6.5.8.5', php_version: '8.3.16' }
-          - { shopware_version: '6.5.8.6', php_version: '8.3.16' }
-          - { shopware_version: '6.5.8.7', php_version: '8.3.16' }
-          - { shopware_version: '6.5.8.8', php_version: '8.3.16' }
-          - { shopware_version: '6.5.8.9', php_version: '8.3.16' }
-          - { shopware_version: '6.5.8.10', php_version: '8.3.16' }
-          - { shopware_version: '6.5.8.11', php_version: '8.3.16' }
-          - { shopware_version: '6.5.8.12', php_version: '8.3.16' }
-          - { shopware_version: '6.5.8.13', php_version: '8.3.16' }
-          - { shopware_version: '6.5.8.14', php_version: '8.3.16' }
-          - { shopware_version: '6.5.8.15', php_version: '8.3.16' }
-          - { shopware_version: '6.5.8.16', php_version: '8.3.16' }
-          - { shopware_version: '6.6.0.0', php_version: '8.3.16' }
-          - { shopware_version: '6.6.0.1', php_version: '8.3.16' }
-          - { shopware_version: '6.6.0.2', php_version: '8.3.16' }
-          - { shopware_version: '6.6.0.3', php_version: '8.3.16' }
-          - { shopware_version: '6.6.1.0', php_version: '8.3.16' }
-          - { shopware_version: '6.6.1.1', php_version: '8.3.16' }
-          - { shopware_version: '6.6.1.2', php_version: '8.3.16' }
-          - { shopware_version: '6.6.2.0', php_version: '8.3.16' }
-          - { shopware_version: '6.6.3.0', php_version: '8.3.16' }
-          - { shopware_version: '6.6.3.1', php_version: '8.3.16' }
-          - { shopware_version: '6.6.4.0', php_version: '8.3.16' }
-          - { shopware_version: '6.6.4.1', php_version: '8.3.16' }
-          - { shopware_version: '6.6.5.0', php_version: '8.3.16' }
-          - { shopware_version: '6.6.5.1', php_version: '8.3.16' }
-          - { shopware_version: '6.6.6.0', php_version: '8.3.16' }
-          - { shopware_version: '6.6.6.1', php_version: '8.3.16' }
-          - { shopware_version: '6.6.7.0', php_version: '8.3.16' }
-          - { shopware_version: '6.6.7.1', php_version: '8.3.16' }
-          - { shopware_version: '6.6.8.0', php_version: '8.3.16' }
-          - { shopware_version: '6.6.8.1', php_version: '8.3.16' }
-          - { shopware_version: '6.6.8.2', php_version: '8.3.16' }
-          - { shopware_version: '6.6.9.0', php_version: '8.3.16' }
+          - { shopware_version: '6.5.8.0', php_version: '8.3.17' }
+          - { shopware_version: '6.5.8.1', php_version: '8.3.17' }
+          - { shopware_version: '6.5.8.2', php_version: '8.3.17' }
+          - { shopware_version: '6.5.8.3', php_version: '8.3.17' }
+          - { shopware_version: '6.5.8.4', php_version: '8.3.17' }
+          - { shopware_version: '6.5.8.5', php_version: '8.3.17' }
+          - { shopware_version: '6.5.8.6', php_version: '8.3.17' }
+          - { shopware_version: '6.5.8.7', php_version: '8.3.17' }
+          - { shopware_version: '6.5.8.8', php_version: '8.3.17' }
+          - { shopware_version: '6.5.8.9', php_version: '8.3.17' }
+          - { shopware_version: '6.5.8.10', php_version: '8.3.17' }
+          - { shopware_version: '6.5.8.11', php_version: '8.3.17' }
+          - { shopware_version: '6.5.8.12', php_version: '8.3.17' }
+          - { shopware_version: '6.5.8.13', php_version: '8.3.17' }
+          - { shopware_version: '6.5.8.14', php_version: '8.3.17' }
+          - { shopware_version: '6.5.8.15', php_version: '8.3.17' }
+          - { shopware_version: '6.5.8.16', php_version: '8.3.17' }
+          - { shopware_version: '6.6.0.0', php_version: '8.3.17' }
+          - { shopware_version: '6.6.0.1', php_version: '8.3.17' }
+          - { shopware_version: '6.6.0.2', php_version: '8.3.17' }
+          - { shopware_version: '6.6.0.3', php_version: '8.3.17' }
+          - { shopware_version: '6.6.1.0', php_version: '8.3.17' }
+          - { shopware_version: '6.6.1.1', php_version: '8.3.17' }
+          - { shopware_version: '6.6.1.2', php_version: '8.3.17' }
+          - { shopware_version: '6.6.2.0', php_version: '8.3.17' }
+          - { shopware_version: '6.6.3.0', php_version: '8.3.17' }
+          - { shopware_version: '6.6.3.1', php_version: '8.3.17' }
+          - { shopware_version: '6.6.4.0', php_version: '8.3.17' }
+          - { shopware_version: '6.6.4.1', php_version: '8.3.17' }
+          - { shopware_version: '6.6.5.0', php_version: '8.3.17' }
+          - { shopware_version: '6.6.5.1', php_version: '8.3.17' }
+          - { shopware_version: '6.6.6.0', php_version: '8.3.17' }
+          - { shopware_version: '6.6.6.1', php_version: '8.3.17' }
+          - { shopware_version: '6.6.7.0', php_version: '8.3.17' }
+          - { shopware_version: '6.6.7.1', php_version: '8.3.17' }
+          - { shopware_version: '6.6.8.0', php_version: '8.3.17' }
+          - { shopware_version: '6.6.8.1', php_version: '8.3.17' }
+          - { shopware_version: '6.6.8.2', php_version: '8.3.17' }
+          - { shopware_version: '6.6.9.0', php_version: '8.3.17' }
         locale: [ 'de-DE', 'en-GB' ]
         currency: ['EUR']
     runs-on:
@@ -582,45 +582,45 @@ jobs:
           - { shopware_version: '6.5.7.2', php_version: '8.2.27' }
           - { shopware_version: '6.5.7.3', php_version: '8.2.27' }
           - { shopware_version: '6.5.7.4', php_version: '8.2.27' }
-          - { shopware_version: '6.5.8.0', php_version: '8.3.16' }
-          - { shopware_version: '6.5.8.1', php_version: '8.3.16' }
-          - { shopware_version: '6.5.8.2', php_version: '8.3.16' }
-          - { shopware_version: '6.5.8.3', php_version: '8.3.16' }
-          - { shopware_version: '6.5.8.4', php_version: '8.3.16' }
-          - { shopware_version: '6.5.8.5', php_version: '8.3.16' }
-          - { shopware_version: '6.5.8.6', php_version: '8.3.16' }
-          - { shopware_version: '6.5.8.7', php_version: '8.3.16' }
-          - { shopware_version: '6.5.8.8', php_version: '8.3.16' }
-          - { shopware_version: '6.5.8.9', php_version: '8.3.16' }
-          - { shopware_version: '6.5.8.10', php_version: '8.3.16' }
-          - { shopware_version: '6.5.8.11', php_version: '8.3.16' }
-          - { shopware_version: '6.5.8.12', php_version: '8.3.16' }
-          - { shopware_version: '6.5.8.13', php_version: '8.3.16' }
-          - { shopware_version: '6.5.8.14', php_version: '8.3.16' }
-          - { shopware_version: '6.5.8.15', php_version: '8.3.16' }
-          - { shopware_version: '6.5.8.16', php_version: '8.3.16' }
-          - { shopware_version: '6.6.0.0', php_version: '8.3.16' }
-          - { shopware_version: '6.6.0.1', php_version: '8.3.16' }
-          - { shopware_version: '6.6.0.2', php_version: '8.3.16' }
-          - { shopware_version: '6.6.0.3', php_version: '8.3.16' }
-          - { shopware_version: '6.6.1.0', php_version: '8.3.16' }
-          - { shopware_version: '6.6.1.1', php_version: '8.3.16' }
-          - { shopware_version: '6.6.1.2', php_version: '8.3.16' }
-          - { shopware_version: '6.6.2.0', php_version: '8.3.16' }
-          - { shopware_version: '6.6.3.0', php_version: '8.3.16' }
-          - { shopware_version: '6.6.3.1', php_version: '8.3.16' }
-          - { shopware_version: '6.6.4.0', php_version: '8.3.16' }
-          - { shopware_version: '6.6.4.1', php_version: '8.3.16' }
-          - { shopware_version: '6.6.5.0', php_version: '8.3.16' }
-          - { shopware_version: '6.6.5.1', php_version: '8.3.16' }
-          - { shopware_version: '6.6.6.0', php_version: '8.3.16' }
-          - { shopware_version: '6.6.6.1', php_version: '8.3.16' }
-          - { shopware_version: '6.6.7.0', php_version: '8.3.16' }
-          - { shopware_version: '6.6.7.1', php_version: '8.3.16' }
-          - { shopware_version: '6.6.8.0', php_version: '8.3.16' }
-          - { shopware_version: '6.6.8.1', php_version: '8.3.16' }
-          - { shopware_version: '6.6.8.2', php_version: '8.3.16' }
-          - { shopware_version: '6.6.9.0', php_version: '8.3.16' }
+          - { shopware_version: '6.5.8.0', php_version: '8.3.17' }
+          - { shopware_version: '6.5.8.1', php_version: '8.3.17' }
+          - { shopware_version: '6.5.8.2', php_version: '8.3.17' }
+          - { shopware_version: '6.5.8.3', php_version: '8.3.17' }
+          - { shopware_version: '6.5.8.4', php_version: '8.3.17' }
+          - { shopware_version: '6.5.8.5', php_version: '8.3.17' }
+          - { shopware_version: '6.5.8.6', php_version: '8.3.17' }
+          - { shopware_version: '6.5.8.7', php_version: '8.3.17' }
+          - { shopware_version: '6.5.8.8', php_version: '8.3.17' }
+          - { shopware_version: '6.5.8.9', php_version: '8.3.17' }
+          - { shopware_version: '6.5.8.10', php_version: '8.3.17' }
+          - { shopware_version: '6.5.8.11', php_version: '8.3.17' }
+          - { shopware_version: '6.5.8.12', php_version: '8.3.17' }
+          - { shopware_version: '6.5.8.13', php_version: '8.3.17' }
+          - { shopware_version: '6.5.8.14', php_version: '8.3.17' }
+          - { shopware_version: '6.5.8.15', php_version: '8.3.17' }
+          - { shopware_version: '6.5.8.16', php_version: '8.3.17' }
+          - { shopware_version: '6.6.0.0', php_version: '8.3.17' }
+          - { shopware_version: '6.6.0.1', php_version: '8.3.17' }
+          - { shopware_version: '6.6.0.2', php_version: '8.3.17' }
+          - { shopware_version: '6.6.0.3', php_version: '8.3.17' }
+          - { shopware_version: '6.6.1.0', php_version: '8.3.17' }
+          - { shopware_version: '6.6.1.1', php_version: '8.3.17' }
+          - { shopware_version: '6.6.1.2', php_version: '8.3.17' }
+          - { shopware_version: '6.6.2.0', php_version: '8.3.17' }
+          - { shopware_version: '6.6.3.0', php_version: '8.3.17' }
+          - { shopware_version: '6.6.3.1', php_version: '8.3.17' }
+          - { shopware_version: '6.6.4.0', php_version: '8.3.17' }
+          - { shopware_version: '6.6.4.1', php_version: '8.3.17' }
+          - { shopware_version: '6.6.5.0', php_version: '8.3.17' }
+          - { shopware_version: '6.6.5.1', php_version: '8.3.17' }
+          - { shopware_version: '6.6.6.0', php_version: '8.3.17' }
+          - { shopware_version: '6.6.6.1', php_version: '8.3.17' }
+          - { shopware_version: '6.6.7.0', php_version: '8.3.17' }
+          - { shopware_version: '6.6.7.1', php_version: '8.3.17' }
+          - { shopware_version: '6.6.8.0', php_version: '8.3.17' }
+          - { shopware_version: '6.6.8.1', php_version: '8.3.17' }
+          - { shopware_version: '6.6.8.2', php_version: '8.3.17' }
+          - { shopware_version: '6.6.9.0', php_version: '8.3.17' }
         locale: [ 'de-DE', 'en-GB' ]
         currency: [ 'EUR' ]
     env:
