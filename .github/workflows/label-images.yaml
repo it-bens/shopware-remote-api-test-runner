@@ -102,17 +102,18 @@ jobs:
       - name: Add labels to multiarch image
         run: |
           crane mutate ghcr.io/${{ github.repository }}:${{ env.SHOPWARE_VERSION }}_${{ env.LOCALE }}_${{ env.CURRENCY }} \
-            --label org.opencontainers.image.source="https://github.com/it-bens/shopware-remote-api-test-runner" \
             --label org.opencontainers.image.title="Shopware Remote API Test Wrapper" \
+            --label org.opencontainers.image.source="https://github.com/it-bens/shopware-remote-api-test-runner" \
+            --label org.opencontainers.image.url="https://github.com/it-bens/shopware-remote-api-test-runner" \
+            --label org.opencontainers.image.documentation="https://github.com/it-bens/shopware-remote-api-test-runner" \
             --label org.opencontainers.image.description="A Docker image for running Shopware with a remote API for testing purposes." \
             --label org.opencontainers.image.authors="Martin Bens <martin.bens@it-bens.de>" \
             --label org.opencontainers.image.licenses="MIT" \
-            --label php.version="${PHP_VERSION}" \
-            --label shopware.version="${SHOPWARE_VERSION}" \
-            --label shopware.locale="${LOCALE}" \
-            --label shopware.currency="${CURRENCY}" \
-            --label shopware.base_url="http://localhost" \
-            --label mariadb.version="11.4.5"
+            --label org.php.version="${PHP_VERSION}" \
+            --label com.shopware.version="${SHOPWARE_VERSION}" \
+            --label com.shopware.locale="${LOCALE}" \
+            --label com.shopware.currency="${CURRENCY}" \
+            --label org.mariadb.version="11.4.5"
       - name: Inspect image
         run: |
           crane manifest 'ghcr.io/${{ github.repository }}:${{ env.SHOPWARE_VERSION }}_${{ env.LOCALE }}_${{ env.CURRENCY }}'
