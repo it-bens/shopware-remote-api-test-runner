@@ -2,10 +2,17 @@ name: Cleanup untagged Docker images
 
 on:
   workflow_dispatch:
+  workflow_run:
+    workflows: [ 'Label pushed Docker Images' ]
+    types:
+      - completed
 
 jobs:
   image-cleanup:
     runs-on: ubuntu-latest
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
     steps:
       - name: Delete untagged Docker images
         uses: Chizkiyahu/delete-untagged-ghcr-action@4a33ce3cf2456d2aef98a1b6c60a12dad56cffd9 # v6.0.0

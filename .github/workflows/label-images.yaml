@@ -2,10 +2,17 @@ name: Label pushed Docker Images
 
 on:
   workflow_dispatch:
+  workflow_run:
+    workflows: [ 'Build and Push Docker Images' ]
+    types:
+      - completed
 
 jobs:
   label-merged-shopware-runner-builds:
     runs-on: ubuntu-24.04
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
     permissions:
       contents: read
       packages: write
