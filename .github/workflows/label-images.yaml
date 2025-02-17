@@ -1,0 +1,118 @@
+name: Label pushed Docker Images
+
+on:
+  workflow_dispatch:
+
+jobs:
+  label-merged-shopware-runner-builds:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      matrix:
+        shopware_version_php_version:
+          # - { shopware_version: '6.5.4.0', php_version: '8.2.27' } (Migration error: An exception occurred while executing a query: SQLSTATE[HY000]: General error: 1901 Function or expression 'variant_listing_config' cannot be used in the CHECK clause of `variant_listing_config)
+          - { shopware_version: '6.5.4.1', php_version: '8.2.27' }
+          - { shopware_version: '6.5.5.0', php_version: '8.2.27' }
+          - { shopware_version: '6.5.5.1', php_version: '8.2.27' }
+          - { shopware_version: '6.5.5.2', php_version: '8.2.27' }
+          - { shopware_version: '6.5.6.0', php_version: '8.2.27' }
+          - { shopware_version: '6.5.6.1', php_version: '8.2.27' }
+          # - { shopware_version: '6.5.7.0', php_version: '8.2.27' } (Fatal error: Uncaught Error: Class "Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Version\CalculatedPriceFieldTestDefinition" not found in /opt/shopware-remote-api-test-runner/vendor/shopware/platform/src/Core/Framework/DependencyInjection/CompilerPass/EntityCompilerPass.php:50)
+          - { shopware_version: '6.5.7.1', php_version: '8.2.27' }
+          - { shopware_version: '6.5.7.2', php_version: '8.2.27' }
+          - { shopware_version: '6.5.7.3', php_version: '8.2.27' }
+          - { shopware_version: '6.5.7.4', php_version: '8.2.27' }
+          - { shopware_version: '6.5.8.0', php_version: '8.3.17' }
+          - { shopware_version: '6.5.8.1', php_version: '8.3.17' }
+          - { shopware_version: '6.5.8.2', php_version: '8.3.17' }
+          - { shopware_version: '6.5.8.3', php_version: '8.3.17' }
+          - { shopware_version: '6.5.8.4', php_version: '8.3.17' }
+          - { shopware_version: '6.5.8.5', php_version: '8.3.17' }
+          - { shopware_version: '6.5.8.6', php_version: '8.3.17' }
+          - { shopware_version: '6.5.8.7', php_version: '8.3.17' }
+          - { shopware_version: '6.5.8.8', php_version: '8.3.17' }
+          - { shopware_version: '6.5.8.9', php_version: '8.3.17' }
+          - { shopware_version: '6.5.8.10', php_version: '8.3.17' }
+          - { shopware_version: '6.5.8.11', php_version: '8.3.17' }
+          - { shopware_version: '6.5.8.12', php_version: '8.3.17' }
+          - { shopware_version: '6.5.8.13', php_version: '8.3.17' }
+          - { shopware_version: '6.5.8.14', php_version: '8.3.17' }
+          - { shopware_version: '6.5.8.15', php_version: '8.3.17' }
+          - { shopware_version: '6.5.8.16', php_version: '8.3.17' }
+          - { shopware_version: '6.6.0.0', php_version: '8.3.17' }
+          - { shopware_version: '6.6.0.1', php_version: '8.3.17' }
+          - { shopware_version: '6.6.0.2', php_version: '8.3.17' }
+          - { shopware_version: '6.6.0.3', php_version: '8.3.17' }
+          - { shopware_version: '6.6.1.0', php_version: '8.3.17' }
+          - { shopware_version: '6.6.1.1', php_version: '8.3.17' }
+          - { shopware_version: '6.6.1.2', php_version: '8.3.17' }
+          - { shopware_version: '6.6.2.0', php_version: '8.3.17' }
+          - { shopware_version: '6.6.3.0', php_version: '8.3.17' }
+          - { shopware_version: '6.6.3.1', php_version: '8.3.17' }
+          - { shopware_version: '6.6.4.0', php_version: '8.3.17' }
+          - { shopware_version: '6.6.4.1', php_version: '8.3.17' }
+          - { shopware_version: '6.6.5.0', php_version: '8.3.17' }
+          - { shopware_version: '6.6.5.1', php_version: '8.3.17' }
+          - { shopware_version: '6.6.6.0', php_version: '8.3.17' }
+          - { shopware_version: '6.6.6.1', php_version: '8.3.17' }
+          - { shopware_version: '6.6.7.0', php_version: '8.3.17' }
+          - { shopware_version: '6.6.7.1', php_version: '8.3.17' }
+          - { shopware_version: '6.6.8.0', php_version: '8.3.17' }
+          - { shopware_version: '6.6.8.1', php_version: '8.3.17' }
+          - { shopware_version: '6.6.8.2', php_version: '8.3.17' }
+          - { shopware_version: '6.6.9.0', php_version: '8.3.17' }
+        locale: [ 'de-DE', 'en-GB' ]
+        currency: [ 'EUR' ]
+    env:
+      PHP_VERSION: ${{ matrix.shopware_version_php_version.php_version }}
+      SHOPWARE_VERSION: ${{ matrix.shopware_version_php_version.shopware_version }}
+      LOCALE: ${{ matrix.locale }}
+      CURRENCY: ${{ matrix.currency }}
+    steps:
+      - name: Set up Docker
+        uses: docker/setup-docker-action@370a7dad4b8ce8dbf00f9363e1652e5074dd6abe # v4.1.0
+        with:
+          daemon-config: |
+            {
+              "debug": false,
+              "features": {
+                "containerd-snapshotter": true
+              },
+              "registry-mirrors": ["https://mirror.gcr.io"]
+            }
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Login to DockerHub
+        uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Install and setup Go
+        uses: actions/setup-go@f111f3307d8850f501ac008e886eec1fd1932a34 # v5.3.0
+        with:
+          go-version: 1.24
+      - name: Install crane
+        uses: imjasonh/setup-crane@31b88efe9de28ae0ffa220711af4b60be9435f6e # v0.4
+      - name: Add labels to multiarch image
+        run: |
+          crane mutate ghcr.io/${{ github.repository }}:${{ env.SHOPWARE_VERSION }}_${{ env.LOCALE }}_${{ env.CURRENCY }} \
+            --label org.opencontainers.image.source="https://github.com/it-bens/shopware-remote-api-test-runner" \
+            --label org.opencontainers.image.title="Shopware Remote API Test Wrapper" \
+            --label org.opencontainers.image.description="A Docker image for running Shopware with a remote API for testing purposes." \
+            --label org.opencontainers.image.authors="Martin Bens <martin.bens@it-bens.de>" \
+            --label org.opencontainers.image.licenses="MIT" \
+            --label php.version="${PHP_VERSION}" \
+            --label shopware.version="${SHOPWARE_VERSION}" \
+            --label shopware.locale="${LOCALE}" \
+            --label shopware.currency="${CURRENCY}" \
+            --label shopware.base_url="http://localhost" \
+            --label mariadb.version="11.4.5"
+      - name: Inspect image
+        run: |
+          crane manifest 'ghcr.io/${{ github.repository }}:${{ env.SHOPWARE_VERSION }}_${{ env.LOCALE }}_${{ env.CURRENCY }}'
