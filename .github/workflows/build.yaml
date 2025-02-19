@@ -505,6 +505,7 @@ jobs:
           - { shopware_version: '6.6.8.1', php_version: '8.3.17' }
           - { shopware_version: '6.6.8.2', php_version: '8.3.17' }
           - { shopware_version: '6.6.9.0', php_version: '8.3.17' }
+          - { shopware_version: '6.6.10.0', php_version: '8.3.17' }
         locale: [ 'de-DE', 'en-GB' ]
         currency: ['EUR']
     runs-on:
@@ -621,6 +622,7 @@ jobs:
           - { shopware_version: '6.6.8.1', php_version: '8.3.17' }
           - { shopware_version: '6.6.8.2', php_version: '8.3.17' }
           - { shopware_version: '6.6.9.0', php_version: '8.3.17' }
+          - { shopware_version: '6.6.10.0', php_version: '8.3.17' }
         locale: [ 'de-DE', 'en-GB' ]
         currency: [ 'EUR' ]
     env:
