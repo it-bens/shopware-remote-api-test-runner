@@ -70,7 +70,7 @@ jobs:
           - { shopware_version: '6.6.8.1', php_version: '8.3.17' }
           - { shopware_version: '6.6.8.2', php_version: '8.3.17' }
           - { shopware_version: '6.6.9.0', php_version: '8.3.17' }
-          - { shopware_version: '6.6.10.0', php_version: '8.3.17' }
+          # - { shopware_version: '6.6.10.0', php_version: '8.3.17' } shopware/platform v6.6.10.0 requires shopware/conflicts 6.6.x-dev -> found shopware/conflicts[6.6.x-dev] but it does not match your minimum-stability.
         locale: [ 'de-DE', 'en-GB' ]
         currency: [ 'EUR' ]
     env:
