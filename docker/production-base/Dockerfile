@@ -36,3 +36,17 @@ RUN install-php-extensions \
 
 # Add disable_warnings.ini to the PHP conf.d folder
 COPY docker/production-base/php/disable_warnings.ini /usr/local/etc/php/conf.d/
+
+# install MariaDB server
+RUN /bin/sh -c echo debconf mysql-server/root_password password root | debconf-set-selections && \
+    echo debconf mysql-server/root_password_again password root | debconf-set-selections && \
+    export DEBIAN_FRONTEND=noninteractive && \
+    apt-get update && \
+    apt-get install -y -q mariadb-server=1:11.4.5+maria~deb12 mariadb-client=1:11.4.5+maria~deb12 && \
+    usermod -d /var/lib/mysql/ mysql && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* /var/cache/apt/* && \
+    chmod 0444 /etc/mysql/my.cnf
+
+ADD docker/production-base/mysql/ /etc/mysql/conf.d/
+RUN chmod -R 0444 /etc/mysql/conf.d/

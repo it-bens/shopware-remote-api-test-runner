@@ -96,24 +96,12 @@ ENV COMPOSER_ALLOW_SUPERUSER=1 \
 # Install Composer (required for installing Shopware plugins)
 COPY --from=composer_upstream /composer /usr/bin/composer
 
-# install MariaDB server
-RUN /bin/sh -c echo debconf mysql-server/root_password password root | debconf-set-selections && \
-    echo debconf mysql-server/root_password_again password root | debconf-set-selections && \
-    export DEBIAN_FRONTEND=noninteractive && \
-    apt-get update && \
-    apt-get install -y -q mariadb-server=1:11.4.5+maria~deb12 mariadb-client=1:11.4.5+maria~deb12 && \
-    usermod -d /var/lib/mysql/ mysql && \
-    rm -rf /var/lib/apt/lists/* /var/cache/apt/* && \
-    chmod 0444 /etc/mysql/my.cnf && \
-    service mariadb start && \
+# setup MariaDB root password
+RUN service mariadb start && \
     mariadb-admin -u root password 'root' && \
     mariadb --user=root --password=root -e "ALTER USER 'root'@'localhost' IDENTIFIED VIA unix_socket OR mysql_native_password USING PASSWORD('root');FLUSH PRIVILEGES;use mysql;select user from user;" && \
     mariadb --user=root --password=root -e "CREATE USER 'root'@'%' IDENTIFIED VIA unix_socket OR mysql_native_password USING PASSWORD('root');GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' WITH GRANT OPTION;FLUSH PRIVILEGES;use mysql;select user from user;" && \
     service mariadb restart
-
-ADD docker/production/mysql/ /etc/mysql/conf.d/
-RUN chmod -R 0444 /etc/mysql/conf.d/ && \
-    service mariadb start
 
 RUN rm /etc/apache2/sites-enabled/* && \
     rm /etc/apache2/sites-available/*
