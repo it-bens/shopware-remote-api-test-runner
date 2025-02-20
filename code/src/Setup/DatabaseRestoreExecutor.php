@@ -14,23 +14,26 @@ final class DatabaseRestoreExecutor
     use AdminApiTestBehaviour;
     use IntegrationTestBehaviour;
 
+    private readonly Connection $connection;
+
     public function __construct(
         private readonly string $backupDirectory
     ) {
-    }
-
-    public function restoreDatabaseFromBackup(): void
-    {
         /** @var Connection $connection */
         $connection = $this->getBrowser()
             ->getContainer()
             ->get(Connection::class);
 
+        $this->connection = $connection;
+    }
+
+    public function restoreDatabaseFromBackup(): void
+    {
         /** @var string $dbName */
-        $dbName = $connection->getDatabase();
+        $dbName = $this->connection->getDatabase();
 
         /** @var array<string, mixed> $params */
-        $params = $connection->getParams();
+        $params = $this->connection->getParams();
         $passwordString = '';
         if ($params['password'] ?? '') {
             $passwordString = '-p' . escapeshellarg($params['password']);
