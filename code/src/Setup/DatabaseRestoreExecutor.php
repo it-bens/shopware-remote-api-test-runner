@@ -20,7 +20,7 @@ final class DatabaseRestoreExecutor
         private readonly string $backupDirectory
     ) {
         /** @var Connection $connection */
-        $connection = $this->getBrowser()
+        $connection = $this->getBrowser(false)
             ->getContainer()
             ->get(Connection::class);
 

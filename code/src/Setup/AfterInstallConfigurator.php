@@ -24,14 +24,14 @@ final class AfterInstallConfigurator
         $shopConfiguratorConstructorArguments = [];
 
         /** @var Connection $connection */
-        $connection = $this->getBrowser()
+        $connection = $this->getBrowser(false)
             ->getContainer()
             ->get(Connection::class);
         $shopConfiguratorConstructorArguments[] = $connection;
 
         if (Comparator::greaterThanOrEqualTo(InstalledVersions::getVersion('shopware/platform'), '6.6.10.0')) {
             /** @var EventDispatcherInterface $eventDispatcher */
-            $eventDispatcher = $this->getBrowser()
+            $eventDispatcher = $this->getBrowser(false)
                 ->getContainer()
                 ->get(EventDispatcherInterface::class);
             $shopConfiguratorConstructorArguments[] = $eventDispatcher;

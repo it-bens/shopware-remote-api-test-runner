@@ -50,7 +50,7 @@ class AdminApiRunner
                 $apiTestRequest->httpRequest->getContent(),
             );
 
-        return $this->getBrowser(authorized: false)
+        return $this->getBrowser(false)
             ->getResponse();
     }
 
