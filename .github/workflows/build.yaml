@@ -261,8 +261,6 @@ jobs:
           provenance: false
           context: .
           file: ./docker/production-helper/satis-builder/Dockerfile
-          cache-from: type=gha,scope=${{ github.repository }}-helper_satis_builder_${{ matrix.php_version }}_${{ matrix.platform }}
-          cache-to: type=gha,scope=${{ github.repository }}-helper_satis_builder_${{ matrix.php_version }}_${{ matrix.platform }}
           outputs: |
             type=image,name=ghcr.io/${{ github.repository }},push-by-digest=true,name-canonical=true,push=true
           build-args: |
@@ -320,8 +318,6 @@ jobs:
           provenance: false
           context: .
           file: ./docker/production-base/Dockerfile
-          cache-from: type=gha,scope=${{ github.repository }}-base_${{ matrix.php_version }}_${{ matrix.platform }}
-          cache-to: type=gha,scope=${{ github.repository }}-base_${{ matrix.php_version }}_${{ matrix.platform }}
           outputs: |
             type=image,name=ghcr.io/${{ github.repository }},push-by-digest=true,name-canonical=true,push=true
           build-args: |
@@ -541,8 +537,6 @@ jobs:
           provenance: false
           context: .
           file: ./docker/production/Dockerfile
-          cache-from: type=gha,scope=${{ github.repository }}-shopware_${{ matrix.SHOPWARE_VERSION }}_${{ env.LOCALE }}_${{ env.CURRENCY }}_${{ matrix.platform }}
-          cache-to: type=gha,scope=${{ github.repository }}-shopware_${{ matrix.SHOPWARE_VERSION }}_${{ env.LOCALE }}_${{ env.CURRENCY }}_${{ matrix.platform }}
           outputs: |
             type=image,name=ghcr.io/${{ github.repository }},push-by-digest=true,name-canonical=true,push=true
           build-args: |
