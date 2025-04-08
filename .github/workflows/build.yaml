@@ -20,7 +20,7 @@ jobs:
           hcloud_token: ${{ secrets.HCLOUD_TOKEN }}
           location: hel1
           server_type: cpx21
-          image: 213294353
+          image: 229425584
 
   create-amd64-runner-2:
     name: Create Hetzner Cloud runner for AMD64
@@ -38,7 +38,7 @@ jobs:
           hcloud_token: ${{ secrets.HCLOUD_TOKEN }}
           location: hel1
           server_type: cpx21
-          image: 213294353
+          image: 229425584
 
   create-amd64-runner-3:
     name: Create Hetzner Cloud runner for AMD64
@@ -56,7 +56,7 @@ jobs:
           hcloud_token: ${{ secrets.HCLOUD_TOKEN }}
           location: hel1
           server_type: cpx21
-          image: 213294353
+          image: 229425584
 
   create-amd64-runner-4:
     name: Create Hetzner Cloud runner for AMD64
@@ -74,7 +74,7 @@ jobs:
           hcloud_token: ${{ secrets.HCLOUD_TOKEN }}
           location: hel1
           server_type: cpx21
-          image: 213294353
+          image: 229425584
 
   create-arm64-runner-1:
     name: Create Hetzner Cloud runner for ARM64
@@ -92,7 +92,7 @@ jobs:
           hcloud_token: ${{ secrets.HCLOUD_TOKEN }}
           location: hel1
           server_type: cax21
-          image: 213294397
+          image: 229425529
 
   create-arm64-runner-2:
     name: Create Hetzner Cloud runner for ARM64
@@ -110,7 +110,7 @@ jobs:
           hcloud_token: ${{ secrets.HCLOUD_TOKEN }}
           location: hel1
           server_type: cax21
-          image: 213294397
+          image: 229425529
 
   create-arm64-runner-3:
     name: Create Hetzner Cloud runner for ARM64
@@ -128,7 +128,7 @@ jobs:
           hcloud_token: ${{ secrets.HCLOUD_TOKEN }}
           location: hel1
           server_type: cax21
-          image: 213294397
+          image: 229425529
 
   create-arm64-runner-4:
     name: Create Hetzner Cloud runner for ARM64
@@ -146,7 +146,7 @@ jobs:
           hcloud_token: ${{ secrets.HCLOUD_TOKEN }}
           location: hel1
           server_type: cax21
-          image: 213294397
+          image: 229425529
 
   label-runners:
     name: Label Hetzner Cloud runners
