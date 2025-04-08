@@ -1,0 +1,25 @@
+name: Sync from GHCR to Docker Hub
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0,6,12,18 * * *'
+
+jobs:
+  sync-images:
+    name: Sync tagged images from GHCR to Docker Hub
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Sync images
+        uses: it-bens/container-registry-sync-action@967ee51e4a5938df277b2027e1f2d9d143b334a4 # v1.0.0
+        with:
+          sourceRepository: 'ghcr.io/it-bens/shopware-remote-api-test-runner'
+          loginToSourceRepository: 'true'
+          sourceRepositoryUsername: ${{ github.actor }}
+          sourceRepositoryPassword: ${{ secrets.GITHUB_TOKEN }}
+          targetRepository: 'itbens/shopware-remote-api-test-runner'
+          loginToTargetRepository: 'true'
+          targetRepositoryUsername: ${{ secrets.DOCKERHUB_USERNAME_ITBENS }}
+          targetRepositoryPassword: ${{ secrets.DOCKERHUB_TOKEN_ITBENS }}
+          tags: '*.*.*.*_*-*_*'
+          regClientConcurrency: 1
