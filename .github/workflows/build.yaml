@@ -93,6 +93,7 @@ jobs:
           location: hel1
           server_type: cax21
           image: 229425529
+          server_wait: 60
 
   create-arm64-runner-2:
     name: Create Hetzner Cloud runner for ARM64
@@ -111,6 +112,7 @@ jobs:
           location: hel1
           server_type: cax21
           image: 229425529
+          server_wait: 60
 
   create-arm64-runner-3:
     name: Create Hetzner Cloud runner for ARM64
@@ -129,6 +131,7 @@ jobs:
           location: hel1
           server_type: cax21
           image: 229425529
+          server_wait: 60
 
   create-arm64-runner-4:
     name: Create Hetzner Cloud runner for ARM64
@@ -147,6 +150,7 @@ jobs:
           location: hel1
           server_type: cax21
           image: 229425529
+          server_wait: 60
 
   label-runners:
     name: Label Hetzner Cloud runners
