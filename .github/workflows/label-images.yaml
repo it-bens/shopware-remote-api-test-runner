@@ -49,6 +49,7 @@ jobs:
           - { shopware_version: '6.5.8.15', php_version: '8.3.21' }
           - { shopware_version: '6.5.8.16', php_version: '8.3.21' }
           - { shopware_version: '6.5.8.17', php_version: '8.3.21' }
+          - { shopware_version: '6.5.8.18', php_version: '8.3.21' }
           - { shopware_version: '6.6.0.0', php_version: '8.3.21' }
           - { shopware_version: '6.6.0.1', php_version: '8.3.21' }
           - { shopware_version: '6.6.0.2', php_version: '8.3.21' }
@@ -75,8 +76,10 @@ jobs:
           # - { shopware_version: '6.6.10.1', php_version: '8.3.21' } You have requested a non-existent service "mailer.default_transport"
           - { shopware_version: '6.6.10.2', php_version: '8.3.21' }
           - { shopware_version: '6.6.10.3', php_version: '8.3.21' }
+          - { shopware_version: '6.6.10.4', php_version: '8.3.21' }
           - { shopware_version: '6.7.0.0-rc1', php_version: '8.4.7' }
           - { shopware_version: '6.7.0.0-rc2', php_version: '8.4.7' }
+          - { shopware_version: '6.7.0.0-rc3', php_version: '8.4.7' }
         locale: [ 'de-DE', 'en-GB' ]
         currency: [ 'EUR' ]
     env:
