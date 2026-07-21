@@ -15,7 +15,7 @@ jobs:
       (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
     steps:
       - name: Delete untagged Docker images
-        uses: Chizkiyahu/delete-untagged-ghcr-action@4a33ce3cf2456d2aef98a1b6c60a12dad56cffd9 # v6.0.0
+        uses: Chizkiyahu/delete-untagged-ghcr-action@707cf4f1445ec3e3f5c7bfc83a023fb868cd1174 # v6.1.1
         with:
           token: ${{ secrets.GHCR_DELETE_PACKAGE_TOKEN }}
           repository_owner: ${{ github.repository_owner }}
